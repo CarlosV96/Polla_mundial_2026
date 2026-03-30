@@ -5,8 +5,15 @@ import 'world_cup_data.dart';
 import 'app_colors.dart';
 import 'podium_widget.dart';
 import 'soccer_ball_widget.dart';
+import 'flip_match_card.dart';
+import 'trophy_widget.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'ad_banner_widget.dart';
+import 'ad_helper.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await MobileAds.instance.initialize(); // ← inicializa AdMob
   runApp(const PollaMundialApp());
 }
 
@@ -393,6 +400,27 @@ class _HomePageState extends State<HomePage> {
     // Refrescamos la pantalla para ver el nuevo Ranking
     setState(() {});
     print("🏁 Partido finalizado y puntos repartidos");
+
+    _mostrarIntersticial();
+  }
+
+  void _mostrarIntersticial() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.interstitialAdUnitId,
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) => ad.dispose(),
+            onAdFailedToShowFullScreenContent: (ad, error) => ad.dispose(),
+          );
+          ad.show();
+        },
+        onAdFailedToLoad: (error) {
+          debugPrint('Intersticial falló: $error');
+        },
+      ),
+    );
   }
 
   void _agregarJugador(String nombre) async {
@@ -570,31 +598,18 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
 
-        // Título
+        const TrophyWidget(size: 88),
+        const SizedBox(height: 6),
         const Text(
           "TABLA DE POSICIONES",
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: FontWeight.bold,
             color: AppColors.dorado,
-            letterSpacing: 2,
+            letterSpacing: 2.5,
           ),
         ),
-        const SizedBox(height: 4),
-        Container(
-          height: 1,
-          width: 120,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.transparent,
-                AppColors.dorado.withOpacity(0.7),
-                Colors.transparent,
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 15),
+        const SizedBox(height: 8),
 
         // ✅ PODIO 3D
         FutureBuilder<List<Map<String, dynamic>>>(
@@ -974,6 +989,8 @@ class _HomePageState extends State<HomePage> {
         ),
 
         const SizedBox(height: 8),
+        const Center(child: AdBannerWidget()),
+        const SizedBox(height: 6),
 
         // --- LISTA DE PARTIDOS ---
         Expanded(
@@ -1021,99 +1038,39 @@ class _HomePageState extends State<HomePage> {
                 itemCount: partidos.length,
                 itemBuilder: (context, index) {
                   final p = partidos[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 15,
-                      vertical: 5,
+                  return FlipMatchCard(
+                    partido: p,
+                    onApostar: p['score_a'] == null
+                        ? () => _mostrarDialogoApuesta(
+                            context,
+                            p['id'],
+                            p['team_a'],
+                            p['team_b'],
+                          )
+                        : null,
+                    onIngresarResultado: p['score_a'] == null
+                        ? () => _mostrarDialogoResultadoReal(
+                            context,
+                            p['id'],
+                            p['team_a'],
+                            p['team_b'],
+                          )
+                        : null,
+                    onEliminar: () => _confirmarEliminacionPartido(
+                      context,
+                      p['id'],
+                      "${p['team_a']} vs ${p['team_b']}",
                     ),
-                    child: ListTile(
-                      onTap: () {
-                        if (p['score_a'] != null) {
-                          _mostrarApuestasFinalizadas(
+                    onVerApuestas: p['score_a'] != null
+                        ? () => _mostrarApuestasFinalizadas(
                             context,
                             p['id'],
                             p['team_a'],
                             p['team_b'],
                             p['score_a'] as int,
                             p['score_b'] as int,
-                          );
-                        }
-                      },
-                      title: Text(
-                        "${p['team_a']} vs ${p['team_b']}",
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: p['score_a'] != null
-                          ? Text(
-                              "Finalizado: ${p['score_a']} - ${p['score_b']}",
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Colors.redAccent,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
-                          : Text(
-                              p['group_name'] != null
-                                  ? "Grupo ${p['group_name']} · Toca para apostar"
-                                  : "Toca para apostar",
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(color: Colors.grey),
-                            ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (p['score_a'] == null)
-                            IconButton(
-                              icon: const Icon(
-                                Icons.casino,
-                                color: Colors.blue,
-                              ),
-                              tooltip: "Apostar",
-                              onPressed: () {
-                                _mostrarDialogoApuesta(
-                                  context,
-                                  p['id'],
-                                  p['team_a'],
-                                  p['team_b'],
-                                );
-                              },
-                            ),
-                          if (p['score_a'] == null)
-                            IconButton(
-                              icon: const Icon(
-                                Icons.sports_score,
-                                color: Colors.amber,
-                              ),
-                              tooltip: "Ingresar resultado",
-                              onPressed: () {
-                                _mostrarDialogoResultadoReal(
-                                  context,
-                                  p['id'],
-                                  p['team_a'],
-                                  p['team_b'],
-                                );
-                              },
-                            )
-                          else
-                            const Icon(Icons.check_circle, color: Colors.green),
-                          IconButton(
-                            icon: const Icon(
-                              Icons.delete_outline,
-                              color: Colors.redAccent,
-                            ),
-                            tooltip: "Eliminar partido",
-                            onPressed: () {
-                              _confirmarEliminacionPartido(
-                                context,
-                                p['id'],
-                                "${p['team_a']} vs ${p['team_b']}",
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
+                          )
+                        : null,
                   );
                 },
               );
