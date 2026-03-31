@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'database_helper.dart';
 import 'app_colors.dart';
+import 'app_strings.dart';
 
 class PlayerDetailPage extends StatelessWidget {
   final int participantId;
@@ -146,7 +147,7 @@ class PlayerDetailPage extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            "$puntos puntos totales",
+                            "$puntos ${AppStrings.puntosLabel}",
                             style: const TextStyle(
                               fontSize: 14,
                               color: AppColors.dorado,
@@ -168,8 +169,8 @@ class PlayerDetailPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "ESTADÍSTICAS",
+                      Text(
+                        AppStrings.estadisticas,
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
@@ -184,28 +185,28 @@ class PlayerDetailPage extends StatelessWidget {
                         children: [
                           _StatCard(
                             valor: exactos,
-                            label: "Exactos",
+                            label: AppStrings.exacto,
                             color: const Color(0xFFFFD700),
                             emoji: "🎯",
                           ),
                           const SizedBox(width: 8),
                           _StatCard(
                             valor: ganadores,
-                            label: "Ganador",
+                            label: AppStrings.ganador,
                             color: AppColors.acento,
                             emoji: "✅",
                           ),
                           const SizedBox(width: 8),
                           _StatCard(
                             valor: fallidos,
-                            label: "Fallos",
+                            label: AppStrings.fallo,
                             color: AppColors.rojo,
                             emoji: "❌",
                           ),
                           const SizedBox(width: 8),
                           _StatCard(
                             valor: pendientes,
-                            label: "Pendientes",
+                            label: AppStrings.pendientes,
                             color: AppColors.textoGris,
                             emoji: "⏳",
                           ),
@@ -219,8 +220,8 @@ class PlayerDetailPage extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              "Precisión",
+                            Text(
+                              AppStrings.precision,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: AppColors.textoGris,
@@ -253,8 +254,8 @@ class PlayerDetailPage extends StatelessWidget {
                       ],
 
                       // Título historial
-                      const Text(
-                        "HISTORIAL DE APUESTAS",
+                      Text(
+                        AppStrings.historial,
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
@@ -278,10 +279,10 @@ class PlayerDetailPage extends StatelessWidget {
                       ),
                     )
                   : historial.isEmpty
-                  ? const SliverFillRemaining(
+                  ? SliverFillRemaining(
                       child: Center(
                         child: Text(
-                          "Este jugador aún no ha apostado.",
+                          AppStrings.sinApuestas,
                           style: TextStyle(color: AppColors.textoGris),
                         ),
                       ),
@@ -319,17 +320,17 @@ class PlayerDetailPage extends StatelessWidget {
                             }
 
                             Color resultColor = AppColors.textoGris;
-                            String resultLabel = "⏳ Pendiente";
+                            String resultLabel = "⏳ ${AppStrings.pendientes}";
                             if (finalizado) {
                               if (puntosGanados == 3) {
                                 resultColor = const Color(0xFFFFD700);
-                                resultLabel = "🎯 Exacto";
+                                resultLabel = "🎯 ${AppStrings.exacto}";
                               } else if (puntosGanados == 1) {
                                 resultColor = AppColors.acento;
-                                resultLabel = "✅ Ganador";
+                                resultLabel = "✅ ${AppStrings.ganador}";
                               } else {
                                 resultColor = AppColors.rojo;
-                                resultLabel = "❌ Falló";
+                                resultLabel = "❌ ${AppStrings.fallo}";
                               }
                             }
 
@@ -390,7 +391,7 @@ class PlayerDetailPage extends StatelessWidget {
                                         ),
                                         const SizedBox(height: 3),
                                         Text(
-                                          "Mi apuesta: $predA — $predB",
+                                          "${AppStrings.miApuesta}: $predA — $predB",
                                           style: const TextStyle(
                                             fontSize: 11,
                                             color: AppColors.textoGris,
@@ -398,7 +399,7 @@ class PlayerDetailPage extends StatelessWidget {
                                         ),
                                         if (finalizado)
                                           Text(
-                                            "Resultado: $realA — $realB",
+                                            "${AppStrings.resultado}: $realA — $realB",
                                             style: TextStyle(
                                               fontSize: 11,
                                               color: resultColor
