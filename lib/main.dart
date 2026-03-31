@@ -10,10 +10,15 @@ import 'trophy_widget.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'ad_banner_widget.dart';
 import 'ad_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'app_settings.dart';
+import 'app_strings.dart';
+import 'settings_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await MobileAds.instance.initialize(); // ← inicializa AdMob
+  await AppSettings.instance.cargarPreferencias();
   runApp(const PollaMundialApp());
 }
 
@@ -22,147 +27,151 @@ class PollaMundialApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Reemplaza el MaterialApp completo:
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Polla Mundial 2026',
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: AppColors.fondoPrincipal,
-        colorScheme: const ColorScheme.dark(
-          primary: AppColors.dorado,
-          secondary: AppColors.acento,
-          surface: AppColors.fondoTarjeta,
-          error: AppColors.rojo,
-        ),
-        // AppBar
-        appBarTheme: const AppBarTheme(
-          backgroundColor: AppColors.fondoPrincipal,
-          elevation: 0,
-          centerTitle: true,
-          titleTextStyle: TextStyle(
-            fontFamily: 'Georgia',
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppColors.dorado,
-            letterSpacing: 1.5,
-          ),
-          iconTheme: IconThemeData(color: AppColors.dorado),
-        ),
-        // Cards
-        cardTheme: CardThemeData(
-          color: AppColors.fondoTarjeta,
-          elevation: 4,
-          shadowColor: AppColors.dorado.withOpacity(0.1),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: AppColors.dorado.withOpacity(0.15),
-              width: 1,
+    return ListenableBuilder(
+      listenable: AppSettings.instance,
+      builder: (context, _) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Polla Mundial 2026',
+          theme: ThemeData(
+            brightness: Brightness.dark,
+            scaffoldBackgroundColor: AppColors.fondoPrincipal,
+            colorScheme: const ColorScheme.dark(
+              primary: AppColors.dorado,
+              secondary: AppColors.acento,
+              surface: AppColors.fondoTarjeta,
+              error: AppColors.rojo,
+            ),
+            // AppBar
+            appBarTheme: const AppBarTheme(
+              backgroundColor: AppColors.fondoPrincipal,
+              elevation: 0,
+              centerTitle: true,
+              titleTextStyle: TextStyle(
+                fontFamily: 'Georgia',
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppColors.dorado,
+                letterSpacing: 1.5,
+              ),
+              iconTheme: IconThemeData(color: AppColors.dorado),
+            ),
+            // Cards
+            cardTheme: CardThemeData(
+              color: AppColors.fondoTarjeta,
+              elevation: 4,
+              shadowColor: AppColors.dorado.withOpacity(0.1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(
+                  color: AppColors.dorado.withOpacity(0.15),
+                  width: 1,
+                ),
+              ),
+            ),
+            // BottomNavigationBar
+            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+              backgroundColor: AppColors.fondoSecundario,
+              selectedItemColor: AppColors.dorado,
+              unselectedItemColor: AppColors.textoGris,
+              elevation: 8,
+            ),
+            // ElevatedButton
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.dorado,
+                foregroundColor: AppColors.fondoPrincipal,
+                elevation: 4,
+                shadowColor: AppColors.dorado.withOpacity(0.4),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.8,
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              ),
+            ),
+            // TextButton
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(foregroundColor: AppColors.acento),
+            ),
+            // TextField
+            inputDecorationTheme: InputDecorationTheme(
+              filled: true,
+              fillColor: AppColors.fondoSecundario,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: AppColors.dorado.withOpacity(0.3)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: AppColors.dorado.withOpacity(0.2)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: AppColors.dorado, width: 1.5),
+              ),
+              labelStyle: const TextStyle(color: AppColors.textoGris),
+              hintStyle: const TextStyle(color: AppColors.textoGris),
+              prefixIconColor: AppColors.textoGris,
+            ),
+            // Divider
+            dividerTheme: DividerThemeData(
+              color: AppColors.dorado.withOpacity(0.2),
+              thickness: 1,
+            ),
+            // SnackBar
+            snackBarTheme: SnackBarThemeData(
+              backgroundColor: AppColors.fondoTarjeta,
+              contentTextStyle: const TextStyle(color: AppColors.textoBlanco),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              behavior: SnackBarBehavior.floating,
+            ),
+            // Dialogs
+            dialogTheme: DialogThemeData(
+              backgroundColor: AppColors.fondoSecundario,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: AppColors.dorado.withOpacity(0.3)),
+              ),
+              titleTextStyle: const TextStyle(
+                color: AppColors.dorado,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+            // Texto general
+            textTheme: const TextTheme(
+              bodyLarge: TextStyle(color: AppColors.textoBlanco),
+              bodyMedium: TextStyle(color: AppColors.textoBlanco),
+              bodySmall: TextStyle(color: AppColors.textoGris),
+              titleLarge: TextStyle(
+                color: AppColors.textoBlanco,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            // CircleAvatar
+            chipTheme: ChipThemeData(
+              backgroundColor: AppColors.fondoTarjeta,
+              selectedColor: AppColors.dorado.withOpacity(0.3),
+              labelStyle: const TextStyle(
+                color: AppColors.textoBlanco,
+                fontSize: 12,
+              ),
+              side: BorderSide(color: AppColors.dorado.withOpacity(0.3)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
             ),
           ),
-        ),
-        // BottomNavigationBar
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: AppColors.fondoSecundario,
-          selectedItemColor: AppColors.dorado,
-          unselectedItemColor: AppColors.textoGris,
-          elevation: 8,
-        ),
-        // ElevatedButton
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.dorado,
-            foregroundColor: AppColors.fondoPrincipal,
-            elevation: 4,
-            shadowColor: AppColors.dorado.withOpacity(0.4),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            textStyle: const TextStyle(
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.8,
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          ),
-        ),
-        // TextButton
-        textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(foregroundColor: AppColors.acento),
-        ),
-        // TextField
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: AppColors.fondoSecundario,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: AppColors.dorado.withOpacity(0.3)),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: AppColors.dorado.withOpacity(0.2)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: AppColors.dorado, width: 1.5),
-          ),
-          labelStyle: const TextStyle(color: AppColors.textoGris),
-          hintStyle: const TextStyle(color: AppColors.textoGris),
-          prefixIconColor: AppColors.textoGris,
-        ),
-        // Divider
-        dividerTheme: DividerThemeData(
-          color: AppColors.dorado.withOpacity(0.2),
-          thickness: 1,
-        ),
-        // SnackBar
-        snackBarTheme: SnackBarThemeData(
-          backgroundColor: AppColors.fondoTarjeta,
-          contentTextStyle: const TextStyle(color: AppColors.textoBlanco),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          behavior: SnackBarBehavior.floating,
-        ),
-        // Dialogs
-        dialogTheme: DialogThemeData(
-          backgroundColor: AppColors.fondoSecundario,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: AppColors.dorado.withOpacity(0.3)),
-          ),
-          titleTextStyle: const TextStyle(
-            color: AppColors.dorado,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.5,
-          ),
-        ),
-        // Texto general
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: AppColors.textoBlanco),
-          bodyMedium: TextStyle(color: AppColors.textoBlanco),
-          bodySmall: TextStyle(color: AppColors.textoGris),
-          titleLarge: TextStyle(
-            color: AppColors.textoBlanco,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        // CircleAvatar
-        chipTheme: ChipThemeData(
-          backgroundColor: AppColors.fondoTarjeta,
-          selectedColor: AppColors.dorado.withOpacity(0.3),
-          labelStyle: const TextStyle(
-            color: AppColors.textoBlanco,
-            fontSize: 12,
-          ),
-          side: BorderSide(color: AppColors.dorado.withOpacity(0.3)),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-        ),
-      ),
-      home: const HomePage(),
+          home: const HomePage(),
+        );
+      }
     );
   }
 }
