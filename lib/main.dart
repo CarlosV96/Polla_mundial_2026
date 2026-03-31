@@ -215,7 +215,6 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 
-  // 2. El diálogo de confirmación para no borrar por error
   void _confirmarEliminacionJugador(
     BuildContext context,
     int id,
@@ -223,22 +222,134 @@ class _HomePageState extends State<HomePage> {
   ) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text("¿Eliminar a $nombre?"),
-        content: const Text("Se borrarán sus puntos y todas sus apuestas."),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar"),
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AppColors.fondoSecundario, AppColors.fondoTarjeta],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: AppColors.rojo.withOpacity(0.4),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.rojo.withOpacity(0.12),
+                blurRadius: 24,
+                spreadRadius: 2,
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              _eliminarJugador(id);
-              Navigator.pop(context);
-            },
-            child: const Text("Eliminar", style: TextStyle(color: Colors.red)),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Ícono
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.rojo.withOpacity(0.12),
+                  border: Border.all(color: AppColors.rojo.withOpacity(0.4)),
+                ),
+                child: const Icon(
+                  Icons.person_remove_outlined,
+                  color: AppColors.rojo,
+                  size: 30,
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              const Text(
+                "ELIMINAR JUGADOR",
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.rojo,
+                  letterSpacing: 2,
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textoGris,
+                    height: 1.5,
+                  ),
+                  children: [
+                    const TextSpan(text: "¿Eliminar a "),
+                    TextSpan(
+                      text: nombre,
+                      style: const TextStyle(
+                        color: AppColors.textoBlanco,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const TextSpan(
+                      text: "?\nSe borrarán sus puntos y todas sus apuestas.",
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: AppColors.textoGris.withOpacity(0.3),
+                          ),
+                        ),
+                      ),
+                      child: const Text(
+                        "Cancelar",
+                        style: TextStyle(color: AppColors.textoGris),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _eliminarJugador(id);
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.rojo,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        "Eliminar",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -250,24 +361,134 @@ class _HomePageState extends State<HomePage> {
   ) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("¿Eliminar partido?"),
-        content: Text(
-          "Se borrará el encuentro: $equipos y todas sus apuestas.",
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AppColors.fondoSecundario, AppColors.fondoTarjeta],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: AppColors.rojo.withOpacity(0.4),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.rojo.withOpacity(0.12),
+                blurRadius: 24,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.rojo.withOpacity(0.12),
+                  border: Border.all(color: AppColors.rojo.withOpacity(0.4)),
+                ),
+                child: const Icon(
+                  Icons.sports_soccer,
+                  color: AppColors.rojo,
+                  size: 30,
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              const Text(
+                "ELIMINAR PARTIDO",
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.rojo,
+                  letterSpacing: 2,
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textoGris,
+                    height: 1.5,
+                  ),
+                  children: [
+                    const TextSpan(text: "Se eliminará el partido\n"),
+                    TextSpan(
+                      text: equipos,
+                      style: const TextStyle(
+                        color: AppColors.textoBlanco,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const TextSpan(
+                      text:
+                          "\ny todas sus apuestas.\nSi ya tenía resultado, los puntos serán revertidos.",
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: AppColors.textoGris.withOpacity(0.3),
+                          ),
+                        ),
+                      ),
+                      child: const Text(
+                        "Cancelar",
+                        style: TextStyle(color: AppColors.textoGris),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _eliminarPartido(id);
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.rojo,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        "Eliminar",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar"),
-          ),
-          TextButton(
-            onPressed: () {
-              _eliminarPartido(id);
-              Navigator.pop(context);
-            },
-            child: const Text("Eliminar", style: TextStyle(color: Colors.red)),
-          ),
-        ],
       ),
     );
   }
@@ -569,28 +790,131 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text("⚠️ ¡CUIDADO!"),
-                  content: const Text(
-                    "¿Estás seguro de borrar TODO el torneo? Se eliminarán jugadores, partidos y puntos. Esta acción no se puede deshacer.",
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("CANCELAR"),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.rojo,
-                        foregroundColor: Colors.white,
+                builder: (context) => Dialog(
+                  backgroundColor: Colors.transparent,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          AppColors.fondoSecundario,
+                          AppColors.fondoTarjeta,
+                        ],
                       ),
-                      onPressed: () {
-                        _reiniciarTodo();
-                        Navigator.pop(context);
-                      },
-                      child: const Text("SÍ, REINICIAR TODO"),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: AppColors.rojo.withOpacity(0.5),
+                        width: 1.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.rojo.withOpacity(0.2),
+                          blurRadius: 24,
+                          spreadRadius: 2,
+                        ),
+                      ],
                     ),
-                  ],
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Ícono de advertencia
+                        Container(
+                          width: 70,
+                          height: 70,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.rojo.withOpacity(0.12),
+                            border: Border.all(
+                              color: AppColors.rojo.withOpacity(0.5),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.warning_amber_rounded,
+                            color: AppColors.rojo,
+                            size: 36,
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        const Text(
+                          "¡REINICIAR TORNEO!",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.rojo,
+                            letterSpacing: 2,
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        const Text(
+                          "Esta acción eliminará TODOS los jugadores, partidos, apuestas y puntos.\n\nEsta acción no se puede deshacer.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textoGris,
+                            height: 1.6,
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Botón cancelar full width
+                        SizedBox(
+                          width: double.infinity,
+                          child: TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 13),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color: AppColors.textoGris.withOpacity(0.3),
+                                ),
+                              ),
+                            ),
+                            child: const Text(
+                              "Cancelar",
+                              style: TextStyle(color: AppColors.textoGris),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        // Botón confirmar full width
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              _reiniciarTodo();
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.rojo,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 13),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              "SÍ, REINICIAR TODO",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               );
             },
@@ -1084,27 +1408,165 @@ class _HomePageState extends State<HomePage> {
   // --- DIÁLOGOS ---
   void _mostrarDialogoJugador(BuildContext context) {
     String nombre = "";
+    final TextEditingController ctrl = TextEditingController();
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('⚽ Nuevo Participante'),
-        content: TextField(
-          decoration: const InputDecoration(hintText: "Nombre del amigo"),
-          onChanged: (v) => nombre = v,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AppColors.fondoSecundario, AppColors.fondoTarjeta],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: AppColors.dorado.withOpacity(0.4),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.dorado.withOpacity(0.15),
+                blurRadius: 24,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Ícono
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.dorado.withOpacity(0.12),
+                  border: Border.all(color: AppColors.dorado.withOpacity(0.4)),
+                ),
+                child: const Icon(
+                  Icons.person_add,
+                  color: AppColors.dorado,
+                  size: 30,
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Título
+              const Text(
+                "NUEVO PARTICIPANTE",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.dorado,
+                  letterSpacing: 2,
+                ),
+              ),
+
+              const SizedBox(height: 6),
+
+              Text(
+                "Ingresa el nombre del jugador",
+                style: TextStyle(fontSize: 12, color: AppColors.textoGris),
+              ),
+
+              const SizedBox(height: 20),
+
+              // TextField
+              TextField(
+                controller: ctrl,
+                autofocus: true,
+                textCapitalization: TextCapitalization.words,
+                style: const TextStyle(color: AppColors.textoBlanco),
+                decoration: InputDecoration(
+                  hintText: "Nombre del participante",
+                  prefixIcon: const Icon(
+                    Icons.person_outline,
+                    color: AppColors.dorado,
+                    size: 20,
+                  ),
+                  filled: true,
+                  fillColor: AppColors.fondoPrincipal,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: AppColors.dorado.withOpacity(0.3),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: AppColors.dorado.withOpacity(0.2),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: AppColors.dorado,
+                      width: 1.5,
+                    ),
+                  ),
+                ),
+                onChanged: (v) => nombre = v,
+                onSubmitted: (_) {
+                  _agregarJugador(nombre);
+                  Navigator.pop(context);
+                },
+              ),
+
+              const SizedBox(height: 24),
+
+              // Botones
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: AppColors.textoGris.withOpacity(0.3),
+                          ),
+                        ),
+                      ),
+                      child: const Text(
+                        "Cancelar",
+                        style: TextStyle(color: AppColors.textoGris),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _agregarJugador(nombre);
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.dorado,
+                        foregroundColor: AppColors.fondoPrincipal,
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        "Registrar",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              _agregarJugador(nombre);
-              Navigator.pop(context);
-            },
-            child: const Text('Guardar'),
-          ),
-        ],
       ),
     );
   }
@@ -1112,36 +1574,230 @@ class _HomePageState extends State<HomePage> {
   void _mostrarDialogoPartido(BuildContext context) {
     String local = "";
     String visitante = "";
+    final TextEditingController ctrlLocal = TextEditingController();
+    final TextEditingController ctrlVisitante = TextEditingController();
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('🏟️ Programar Partido'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              decoration: const InputDecoration(labelText: 'Equipo A'),
-              onChanged: (v) => local = v,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AppColors.fondoSecundario, AppColors.fondoTarjeta],
             ),
-            TextField(
-              decoration: const InputDecoration(labelText: 'Equipo B'),
-              onChanged: (v) => visitante = v,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: AppColors.dorado.withOpacity(0.4),
+              width: 1.5,
             ),
-          ],
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.dorado.withOpacity(0.15),
+                blurRadius: 24,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Ícono
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.dorado.withOpacity(0.12),
+                  border: Border.all(color: AppColors.dorado.withOpacity(0.4)),
+                ),
+                child: const Icon(
+                  Icons.sports_soccer,
+                  color: AppColors.dorado,
+                  size: 30,
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              const Text(
+                "NUEVO PARTIDO",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.dorado,
+                  letterSpacing: 2,
+                ),
+              ),
+
+              const SizedBox(height: 6),
+
+              Text(
+                "Ingresa los equipos que se enfrentan",
+                style: TextStyle(fontSize: 12, color: AppColors.textoGris),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Equipo A
+              TextField(
+                controller: ctrlLocal,
+                autofocus: true,
+                textCapitalization: TextCapitalization.words,
+                style: const TextStyle(color: AppColors.textoBlanco),
+                decoration: InputDecoration(
+                  hintText: "Equipo local",
+                  prefixIcon: const Icon(
+                    Icons.shield_outlined,
+                    color: AppColors.dorado,
+                    size: 20,
+                  ),
+                  filled: true,
+                  fillColor: AppColors.fondoPrincipal,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: AppColors.dorado.withOpacity(0.3),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: AppColors.dorado.withOpacity(0.2),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: AppColors.dorado,
+                      width: 1.5,
+                    ),
+                  ),
+                ),
+                onChanged: (v) => local = v,
+              ),
+
+              const SizedBox(height: 12),
+
+              // VS separador
+              Row(
+                children: [
+                  Expanded(
+                    child: Divider(color: AppColors.dorado.withOpacity(0.2)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      "VS",
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.dorado.withOpacity(0.6),
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Divider(color: AppColors.dorado.withOpacity(0.2)),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 12),
+
+              // Equipo B
+              TextField(
+                controller: ctrlVisitante,
+                textCapitalization: TextCapitalization.words,
+                style: const TextStyle(color: AppColors.textoBlanco),
+                decoration: InputDecoration(
+                  hintText: "Equipo visitante",
+                  prefixIcon: const Icon(
+                    Icons.shield_outlined,
+                    color: AppColors.acento,
+                    size: 20,
+                  ),
+                  filled: true,
+                  fillColor: AppColors.fondoPrincipal,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: AppColors.dorado.withOpacity(0.3),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: AppColors.dorado.withOpacity(0.2),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: AppColors.dorado,
+                      width: 1.5,
+                    ),
+                  ),
+                ),
+                onChanged: (v) => visitante = v,
+                onSubmitted: (_) {
+                  _agregarPartido(local, visitante);
+                  Navigator.pop(context);
+                },
+              ),
+
+              const SizedBox(height: 24),
+
+              // Botones
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: AppColors.textoGris.withOpacity(0.3),
+                          ),
+                        ),
+                      ),
+                      child: const Text(
+                        "Cancelar",
+                        style: TextStyle(color: AppColors.textoGris),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _agregarPartido(local, visitante);
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.dorado,
+                        foregroundColor: AppColors.fondoPrincipal,
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        "Crear Partido",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              _agregarPartido(local, visitante);
-              Navigator.pop(context);
-            },
-            child: const Text('Crear'),
-          ),
-        ],
       ),
     );
   }
@@ -1152,7 +1808,6 @@ class _HomePageState extends State<HomePage> {
     String equipoA,
     String equipoB,
   ) async {
-    // 1. Obtenemos la lista de jugadores para el Dropdown
     List<Map<String, dynamic>> jugadores = await _obtenerParticipantes();
 
     if (jugadores.isEmpty) {
@@ -1167,161 +1822,434 @@ class _HomePageState extends State<HomePage> {
     int? jugadorSeleccionadoId;
     int golesA = 0;
     int golesB = 0;
+    Key futureKey = UniqueKey();
 
     showDialog(
       context: context,
-      builder: (context) {
-        // PUNTO 1: La llave se define fuera del StatefulBuilder para que persista
-        Key futureKey = UniqueKey();
-
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            // PUNTO 2: Controladores para poder limpiar los cuadros de texto
-            // Los inicializamos con el valor actual de golesA y golesB
-            final TextEditingController ctrlA = TextEditingController(
-              text: golesA.toString(),
-            );
-            final TextEditingController ctrlB = TextEditingController(
-              text: golesB.toString(),
-            );
-
-            return AlertDialog(
-              title: Text('Apuesta: $equipoA vs $equipoB'),
-              content: SingleChildScrollView(
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 24,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [AppColors.fondoSecundario, AppColors.fondoTarjeta],
+                ),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.dorado.withOpacity(0.4),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.dorado.withOpacity(0.15),
+                    blurRadius: 24,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(22),
+              child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text("¿Quién apuesta?"),
-                    DropdownButton<int>(
-                      isExpanded: true,
-                      hint: const Text("Selecciona jugador"),
-                      value: jugadorSeleccionadoId,
-                      items: jugadores.map((j) {
-                        return DropdownMenuItem<int>(
-                          value: j['id'],
-                          child: Text(j['name']),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setDialogState(() {
-                          jugadorSeleccionadoId = value;
-                          // PUNTO 2: Al cambiar de jugador, limpiamos los campos
-                          golesA = 0;
-                          golesB = 0;
-                          ctrlA.clear();
-                          ctrlB.clear();
-                        });
-                      },
+                    // ── TÍTULO ──────────────────────────────────────────
+                    const Icon(
+                      Icons.casino_outlined,
+                      color: AppColors.dorado,
+                      size: 28,
                     ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Column(
-                          children: [
-                            Text(equipoA, style: const TextStyle(fontSize: 12)),
-                            SizedBox(
-                              width: 50,
-                              child: TextField(
-                                controller: ctrlA, // ASIGNAMOS CONTROLADOR
-                                keyboardType: TextInputType.number,
-                                textAlign: TextAlign.center,
-                                onChanged: (v) => golesA = int.tryParse(v) ?? 0,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Text("VS"),
-                        Column(
-                          children: [
-                            Text(equipoB, style: const TextStyle(fontSize: 12)),
-                            SizedBox(
-                              width: 50,
-                              child: TextField(
-                                controller: ctrlB, // ASIGNAMOS CONTROLADOR
-                                keyboardType: TextInputType.number,
-                                textAlign: TextAlign.center,
-                                onChanged: (v) => golesB = int.tryParse(v) ?? 0,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const Divider(height: 30),
+                    const SizedBox(height: 8),
                     const Text(
-                      "Apuestas registradas:",
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                      "REALIZAR APUESTA",
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.dorado,
+                        letterSpacing: 2,
+                      ),
                     ),
-                    const SizedBox(height: 10),
-                    FutureBuilder<List<Map<String, dynamic>>>(
-                      key: futureKey, // PUNTO 1: Aplicamos la llave aquí
-                      future: _obtenerApuestasDelPartido(matchId),
-                      builder: (context, snap) {
-                        if (!snap.hasData || snap.data!.isEmpty) {
-                          return const Text(
-                            "Nadie ha apostado aún",
-                            style: TextStyle(fontSize: 11),
-                          );
-                        }
-                        return Column(
-                          children: snap.data!
-                              .map(
-                                (a) => Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 2,
+                    const SizedBox(height: 16),
+
+                    // ── SELECTOR DE JUGADOR ──────────────────────────────
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: AppColors.fondoPrincipal,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.dorado.withOpacity(0.25),
+                        ),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<int>(
+                          isExpanded: true,
+                          hint: const Text(
+                            "¿Quién apuesta?",
+                            style: TextStyle(
+                              color: AppColors.textoGris,
+                              fontSize: 13,
+                            ),
+                          ),
+                          value: jugadorSeleccionadoId,
+                          dropdownColor: AppColors.fondoSecundario,
+                          icon: const Icon(
+                            Icons.keyboard_arrow_down,
+                            color: AppColors.dorado,
+                          ),
+                          items: jugadores.map((j) {
+                            return DropdownMenuItem<int>(
+                              value: j['id'],
+                              child: Text(
+                                j['name'],
+                                style: const TextStyle(
+                                  color: AppColors.textoBlanco,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setDialogState(() {
+                              jugadorSeleccionadoId = value;
+                              golesA = 0;
+                              golesB = 0;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 22),
+
+                    // ── MARCADOR TIPO ESTADIO ────────────────────────────
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 18,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.fondoPrincipal,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: AppColors.dorado.withOpacity(0.2),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          // Equipo A
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Text(
+                                  equipoA,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textoBlanco,
                                   ),
-                                  child: Text(
-                                    "${a['name']}: ${a['predict_score_a']} - ${a['predict_score_b']}",
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.greenAccent,
+                                ),
+                                const SizedBox(height: 12),
+                                // Botones +/-
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    _botonGol(
+                                      icono: Icons.remove,
+                                      onTap: () => setDialogState(() {
+                                        if (golesA > 0) golesA--;
+                                      }),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                      ),
+                                      child: Text(
+                                        "$golesA",
+                                        style: const TextStyle(
+                                          fontSize: 36,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.dorado,
+                                        ),
+                                      ),
+                                    ),
+                                    _botonGol(
+                                      icono: Icons.add,
+                                      onTap: () => setDialogState(() {
+                                        golesA++;
+                                      }),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Separador VS
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Column(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 5,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.dorado.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: AppColors.dorado.withOpacity(0.3),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    "VS",
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.dorado,
+                                      letterSpacing: 1.5,
                                     ),
                                   ),
                                 ),
-                              )
-                              .toList(),
+                              ],
+                            ),
+                          ),
+
+                          // Equipo B
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Text(
+                                  equipoB,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textoBlanco,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    _botonGol(
+                                      icono: Icons.remove,
+                                      onTap: () => setDialogState(() {
+                                        if (golesB > 0) golesB--;
+                                      }),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                      ),
+                                      child: Text(
+                                        "$golesB",
+                                        style: const TextStyle(
+                                          fontSize: 36,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.dorado,
+                                        ),
+                                      ),
+                                    ),
+                                    _botonGol(
+                                      icono: Icons.add,
+                                      onTap: () => setDialogState(() {
+                                        golesB++;
+                                      }),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // ── APUESTAS REGISTRADAS ─────────────────────────────
+                    FutureBuilder<List<Map<String, dynamic>>>(
+                      key: futureKey,
+                      future: _obtenerApuestasDelPartido(matchId),
+                      builder: (context, snap) {
+                        if (!snap.hasData || snap.data!.isEmpty) {
+                          return Text(
+                            "Nadie ha apostado aún",
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textoGris,
+                            ),
+                          );
+                        }
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "APUESTAS REGISTRADAS",
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textoGris,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            ...snap.data!.map(
+                              (a) => Container(
+                                margin: const EdgeInsets.only(bottom: 6),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.fondoPrincipal,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: AppColors.verde.withOpacity(0.25),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.person_outline,
+                                          size: 14,
+                                          color: AppColors.textoGris,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          a['name'],
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: AppColors.textoBlanco,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Text(
+                                      "${a['predict_score_a']} — ${a['predict_score_b']}",
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.verde,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         );
                       },
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // ── BOTONES ──────────────────────────────────────────
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 13),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color: AppColors.textoGris.withOpacity(0.3),
+                                ),
+                              ),
+                            ),
+                            child: const Text(
+                              "Cancelar",
+                              style: TextStyle(color: AppColors.textoGris),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: jugadorSeleccionadoId == null
+                                ? null
+                                : () async {
+                                    await _guardarApuesta(
+                                      jugadorSeleccionadoId!,
+                                      matchId,
+                                      golesA,
+                                      golesB,
+                                    );
+                                    setDialogState(() {
+                                      futureKey = UniqueKey();
+                                    });
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text("¡Apuesta registrada!"),
+                                        duration: Duration(seconds: 1),
+                                      ),
+                                    );
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.dorado,
+                              foregroundColor: AppColors.fondoPrincipal,
+                              disabledBackgroundColor: AppColors.dorado
+                                  .withOpacity(0.3),
+                              padding: const EdgeInsets.symmetric(vertical: 13),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              "Confirmar",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancelar'),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (jugadorSeleccionadoId != null) {
-                      await _guardarApuesta(
-                        jugadorSeleccionadoId!,
-                        matchId,
-                        golesA,
-                        golesB,
-                      );
+            ),
+          );
+        },
+      ),
+    );
+  }
 
-                      // PUNTO 1: Cambiamos la Key para forzar al FutureBuilder a recargar
-                      setDialogState(() {
-                        futureKey = UniqueKey();
-                      });
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("¡Apuesta registrada/actualizada!"),
-                          duration: Duration(seconds: 1),
-                        ),
-                      );
-                    }
-                  },
-                  child: const Text('Confirmar Apuesta'),
-                ),
-              ],
-            );
-          },
-        );
-      },
+  // ── HELPER botón +/− ─────────────────────────────────────────────────────────
+  Widget _botonGol({
+    required IconData icono,
+    required VoidCallback onTap,
+    Color color = AppColors.dorado, // ← parámetro opcional con default
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: color.withOpacity(0.12),
+          border: Border.all(color: color.withOpacity(0.4)),
+        ),
+        child: Icon(icono, color: color, size: 16),
+      ),
     );
   }
 
@@ -1336,72 +2264,313 @@ class _HomePageState extends State<HomePage> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('🏁 Resultado Oficial: $equipoA vs $equipoB'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              "Ingresa cómo quedó el partido en la realidad:",
-              textAlign: TextAlign.center,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 24,
             ),
-            const SizedBox(height: 15),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  children: [
-                    Text(equipoA),
-                    SizedBox(
-                      width: 50,
-                      child: TextField(
-                        keyboardType: TextInputType.number,
-                        textAlign: TextAlign.center,
-                        onChanged: (v) => resultadoRealA = int.tryParse(v) ?? 0,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [AppColors.fondoSecundario, AppColors.fondoTarjeta],
+                ),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.verde.withOpacity(0.4),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.verde.withOpacity(0.12),
+                    blurRadius: 24,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(22),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ── TÍTULO ──────────────────────────────────────────────
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.verde.withOpacity(0.12),
+                      border: Border.all(
+                        color: AppColors.verde.withOpacity(0.4),
                       ),
                     ),
-                  ],
-                ),
-                const Text("-"),
-                Column(
-                  children: [
-                    Text(equipoB),
-                    SizedBox(
-                      width: 50,
-                      child: TextField(
-                        keyboardType: TextInputType.number,
-                        textAlign: TextAlign.center,
-                        onChanged: (v) => resultadoRealB = int.tryParse(v) ?? 0,
+                    child: const Icon(
+                      Icons.sports_score,
+                      color: AppColors.verde,
+                      size: 30,
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  const Text(
+                    "RESULTADO OFICIAL",
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.verde,
+                      letterSpacing: 2,
+                    ),
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  Text(
+                    "$equipoA vs $equipoB",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textoGris,
+                    ),
+                  ),
+
+                  const SizedBox(height: 22),
+
+                  // ── MARCADOR ────────────────────────────────────────────
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 20,
+                      horizontal: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.fondoPrincipal,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: AppColors.verde.withOpacity(0.2),
                       ),
                     ),
-                  ],
-                ),
-              ],
+                    child: Row(
+                      children: [
+                        // Equipo A
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Text(
+                                equipoA,
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textoBlanco,
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _botonGol(
+                                    icono: Icons.remove,
+                                    onTap: () => setDialogState(() {
+                                      if (resultadoRealA > 0) resultadoRealA--;
+                                    }),
+                                    color: AppColors.verde,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                    ),
+                                    child: Text(
+                                      "$resultadoRealA",
+                                      style: const TextStyle(
+                                        fontSize: 40,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.verde,
+                                      ),
+                                    ),
+                                  ),
+                                  _botonGol(
+                                    icono: Icons.add,
+                                    onTap: () => setDialogState(() {
+                                      resultadoRealA++;
+                                    }),
+                                    color: AppColors.verde,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Separador
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.verde.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: AppColors.verde.withOpacity(0.3),
+                              ),
+                            ),
+                            child: const Text(
+                              "—",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.verde,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // Equipo B
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Text(
+                                equipoB,
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textoBlanco,
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _botonGol(
+                                    icono: Icons.remove,
+                                    onTap: () => setDialogState(() {
+                                      if (resultadoRealB > 0) resultadoRealB--;
+                                    }),
+                                    color: AppColors.verde,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                    ),
+                                    child: Text(
+                                      "$resultadoRealB",
+                                      style: const TextStyle(
+                                        fontSize: 40,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.verde,
+                                      ),
+                                    ),
+                                  ),
+                                  _botonGol(
+                                    icono: Icons.add,
+                                    onTap: () => setDialogState(() {
+                                      resultadoRealB++;
+                                    }),
+                                    color: AppColors.verde,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // Aviso
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 12,
+                        color: AppColors.textoGris,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        "Esta acción calculará los puntos automáticamente",
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: AppColors.textoGris,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // ── BOTONES ─────────────────────────────────────────────
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 13),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(
+                                color: AppColors.textoGris.withOpacity(0.3),
+                              ),
+                            ),
+                          ),
+                          child: const Text(
+                            "Cancelar",
+                            style: TextStyle(color: AppColors.textoGris),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            _finalizarPartido(
+                              matchId,
+                              resultadoRealA,
+                              resultadoRealB,
+                            );
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "🏆 Puntos calculados y ranking actualizado",
+                                ),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.verde,
+                            foregroundColor: AppColors.fondoPrincipal,
+                            padding: const EdgeInsets.symmetric(vertical: 13),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            "Finalizar",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () {
-              _finalizarPartido(matchId, resultadoRealA, resultadoRealB);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Puntos calculados y Ranking actualizado 🏆"),
-                ),
-              );
-            },
-            child: const Text(
-              'Finalizar Partido',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -1502,116 +2671,290 @@ class _HomePageState extends State<HomePage> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('📊 $equipoA vs $equipoB'),
-        content: SingleChildScrollView(
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AppColors.fondoSecundario, AppColors.fondoTarjeta],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: AppColors.acento.withOpacity(0.4),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.acento.withOpacity(0.12),
+                blurRadius: 24,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(22),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Resultado oficial
+              // ── TÍTULO ────────────────────────────────────────────────
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                width: 64,
+                height: 64,
                 decoration: BoxDecoration(
-                  color: Colors.green[900],
-                  borderRadius: BorderRadius.circular(10),
+                  shape: BoxShape.circle,
+                  color: AppColors.acento.withOpacity(0.12),
+                  border: Border.all(color: AppColors.acento.withOpacity(0.4)),
+                ),
+                child: const Icon(
+                  Icons.bar_chart_rounded,
+                  color: AppColors.acento,
+                  size: 30,
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              const Text(
+                "RESUMEN DEL PARTIDO",
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.acento,
+                  letterSpacing: 2,
+                ),
+              ),
+
+              const SizedBox(height: 4),
+
+              Text(
+                "$equipoA vs $equipoB",
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textoGris,
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // ── RESULTADO OFICIAL ──────────────────────────────────────
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 14,
+                  horizontal: 20,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.verde.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.verde.withOpacity(0.35)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
-                      Icons.check_circle,
-                      color: Colors.greenAccent,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 8),
                     Text(
-                      "Resultado oficial: $resultadoA - $resultadoB",
+                      equipoA,
                       style: const TextStyle(
+                        fontSize: 13,
                         fontWeight: FontWeight.bold,
-                        color: Colors.greenAccent,
+                        color: AppColors.textoBlanco,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        "$resultadoA — $resultadoB",
+                        style: const TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.verde,
+                          letterSpacing: 4,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      equipoB,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textoBlanco,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 15),
-              const Divider(),
-              // Lista de apuestas
+
+              const SizedBox(height: 16),
+
+              // ── LISTA DE APUESTAS ──────────────────────────────────────
               if (apuestas.isEmpty)
-                const Text(
-                  "Nadie apostó en este partido",
-                  style: TextStyle(color: Colors.grey),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Text(
+                    "Nadie apostó en este partido",
+                    style: TextStyle(color: AppColors.textoGris),
+                  ),
                 )
               else
-                ...apuestas.map((a) {
-                  int predA = a['predict_score_a'] as int;
-                  int predB = a['predict_score_b'] as int;
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 280),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: apuestas.length,
+                    itemBuilder: (context, index) {
+                      final a = apuestas[index];
+                      final predA = a['predict_score_a'] as int;
+                      final predB = a['predict_score_b'] as int;
 
-                  // Calcular puntos que ganó
-                  int puntos = 0;
-                  if (predA == resultadoA && predB == resultadoB) {
-                    puntos = 3;
-                  } else {
-                    int ganReal = resultadoA > resultadoB
-                        ? 1
-                        : resultadoA < resultadoB
-                        ? -1
-                        : 0;
-                    int ganPred = predA > predB
-                        ? 1
-                        : predA < predB
-                        ? -1
-                        : 0;
-                    if (ganReal == ganPred) puntos = 1;
-                  }
+                      int puntos = 0;
+                      if (predA == resultadoA && predB == resultadoB) {
+                        puntos = 3;
+                      } else {
+                        int ganReal = resultadoA > resultadoB
+                            ? 1
+                            : resultadoA < resultadoB
+                            ? -1
+                            : 0;
+                        int ganPred = predA > predB
+                            ? 1
+                            : predA < predB
+                            ? -1
+                            : 0;
+                        if (ganReal == ganPred) puntos = 1;
+                      }
 
-                  return ListTile(
-                    dense: true,
-                    leading: CircleAvatar(
-                      radius: 14,
-                      backgroundColor: puntos == 3
-                          ? Colors.amber
-                          : puntos == 1
-                          ? Colors.blue
-                          : Colors.grey[800],
-                      child: Text(
-                        "+$puntos",
-                        style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
+                      Color resultColor;
+                      String resultLabel;
+                      IconData resultIcon;
+
+                      if (puntos == 3) {
+                        resultColor = const Color(0xFFFFD700);
+                        resultLabel = "Exacto";
+                        resultIcon = Icons.gps_fixed;
+                      } else if (puntos == 1) {
+                        resultColor = AppColors.acento;
+                        resultLabel = "Ganador";
+                        resultIcon = Icons.check_circle_outline;
+                      } else {
+                        resultColor = AppColors.rojo;
+                        resultLabel = "Falló";
+                        resultIcon = Icons.cancel_outlined;
+                      }
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
                         ),
-                      ),
-                    ),
-                    title: Text(a['name'] as String),
-                    subtitle: Text("Apostó: $predA - $predB"),
-                    trailing: puntos == 3
-                        ? const Text(
-                            "🎯 Exacto",
-                            style: TextStyle(color: Colors.amber, fontSize: 12),
-                          )
-                        : puntos == 1
-                        ? const Text(
-                            "✅ Ganador",
-                            style: TextStyle(
-                              color: Colors.blueAccent,
-                              fontSize: 12,
-                            ),
-                          )
-                        : const Text(
-                            "❌ Falló",
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                        decoration: BoxDecoration(
+                          color: resultColor.withOpacity(0.07),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: resultColor.withOpacity(0.3),
+                            width: 1,
                           ),
-                  );
-                }),
+                        ),
+                        child: Row(
+                          children: [
+                            // Puntos
+                            Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: resultColor.withOpacity(0.15),
+                                border: Border.all(
+                                  color: resultColor.withOpacity(0.5),
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "+$puntos",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: resultColor,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(width: 12),
+
+                            // Nombre y apuesta
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    a['name'] as String,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textoBlanco,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    "Apostó: $predA — $predB",
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: AppColors.textoGris,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // Etiqueta resultado
+                            Row(
+                              children: [
+                                Icon(resultIcon, size: 14, color: resultColor),
+                                const SizedBox(width: 4),
+                                Text(
+                                  resultLabel,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: resultColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+              const SizedBox(height: 16),
+
+              // ── BOTÓN CERRAR ───────────────────────────────────────────
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.acento,
+                    foregroundColor: AppColors.fondoPrincipal,
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "Cerrar",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cerrar"),
-          ),
-        ],
       ),
     );
   }
