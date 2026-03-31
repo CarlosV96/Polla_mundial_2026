@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
+import 'app_strings.dart';
 
 /// Tarjeta con efecto flip 3D para un partido de la polla.
 /// - Cara frontal: info del partido (grupo, equipos, estado/marcador)
@@ -135,7 +136,7 @@ class _FrontFace extends StatelessWidget {
         finalizado ? AppColors.verde : AppColors.textoGris;
     final IconData statusIcon =
         finalizado ? Icons.check_circle_outline : Icons.touch_app_outlined;
-    final String statusLabel = finalizado ? "Finalizado" : "Toca para acciones";
+    final String statusLabel = finalizado ? AppStrings.finalizado : AppStrings.tocaParaAcciones;
 
     return GestureDetector(
       onTap: onFlip,
@@ -272,7 +273,7 @@ class _GroupBadge extends StatelessWidget {
         border: Border.all(color: color.withOpacity(0.4), width: 0.8),
       ),
       child: Text(
-        "Grupo $grupo",
+        "${AppStrings.grupo} $grupo",
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.bold,
@@ -422,25 +423,25 @@ class _BackFace extends StatelessWidget {
   List<Widget> _botonesPendientes(BuildContext context) => [
         _ActionButton(
           icon: Icons.casino_outlined,
-          label: "Apostar",
+          label: AppStrings.apostar,
           color: AppColors.acento,
           onTap: onApostar,
         ),
         _ActionButton(
           icon: Icons.sports_score_outlined,
-          label: "Resultado",
+          label: AppStrings.resultado,
           color: AppColors.dorado,
           onTap: onIngresarResultado,
         ),
         _ActionButton(
           icon: Icons.delete_outline,
-          label: "Eliminar",
+          label: AppStrings.eliminar,
           color: AppColors.rojo,
           onTap: onEliminar,
         ),
         _ActionButton(
           icon: Icons.keyboard_arrow_down_rounded,
-          label: "Cerrar",
+          label: AppStrings.cerrar,
           color: AppColors.textoGris,
           onTap: onClose,
         ),
@@ -449,19 +450,19 @@ class _BackFace extends StatelessWidget {
   List<Widget> _botonesFinalizados(BuildContext context) => [
         _ActionButton(
           icon: Icons.bar_chart_rounded,
-          label: "Apuestas",
+          label: AppStrings.apuestas,
           color: AppColors.acento,
           onTap: onVerApuestas,
         ),
         _ActionButton(
           icon: Icons.delete_outline,
-          label: "Eliminar",
+          label: AppStrings.eliminar,
           color: AppColors.rojo,
           onTap: onEliminar,
         ),
         _ActionButton(
           icon: Icons.keyboard_arrow_down_rounded,
-          label: "Cerrar",
+          label: AppStrings.cerrar,
           color: AppColors.textoGris,
           onTap: onClose,
         ),

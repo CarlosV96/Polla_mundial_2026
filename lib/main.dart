@@ -10,7 +10,6 @@ import 'trophy_widget.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'ad_banner_widget.dart';
 import 'ad_helper.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'app_settings.dart';
 import 'app_strings.dart';
 import 'settings_page.dart';
@@ -90,7 +89,10 @@ class PollaMundialApp extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   letterSpacing: 0.8,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
               ),
             ),
             // TextButton
@@ -103,15 +105,22 @@ class PollaMundialApp extends StatelessWidget {
               fillColor: AppColors.fondoSecundario,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: AppColors.dorado.withOpacity(0.3)),
+                borderSide: BorderSide(
+                  color: AppColors.dorado.withOpacity(0.3),
+                ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: AppColors.dorado.withOpacity(0.2)),
+                borderSide: BorderSide(
+                  color: AppColors.dorado.withOpacity(0.2),
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppColors.dorado, width: 1.5),
+                borderSide: const BorderSide(
+                  color: AppColors.dorado,
+                  width: 1.5,
+                ),
               ),
               labelStyle: const TextStyle(color: AppColors.textoGris),
               hintStyle: const TextStyle(color: AppColors.textoGris),
@@ -171,7 +180,7 @@ class PollaMundialApp extends StatelessWidget {
           ),
           home: const HomePage(),
         );
-      }
+      },
     );
   }
 }
@@ -729,6 +738,17 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined, color: AppColors.dorado),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsPage()),
+              );
+            },
+          ),
+        ],
         centerTitle: true,
         backgroundColor: AppColors.fondoPrincipal,
         bottom: PreferredSize(
