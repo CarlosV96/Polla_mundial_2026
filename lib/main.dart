@@ -1190,29 +1190,129 @@ class _HomePageState extends State<HomePage> {
         FutureBuilder<Map<String, int>>(
           future: DatabaseHelper.instance.getMatchStats(),
           builder: (context, snapshot) {
-            if (!snapshot.hasData) return const LinearProgressIndicator();
+            if (!snapshot.hasData) {
+              return const LinearProgressIndicator(
+                color: AppColors.dorado,
+                backgroundColor: AppColors.fondoTarjeta,
+              );
+            }
             final stats = snapshot.data!;
+            final total = stats['total']!;
+            final jugados = stats['jugados']!;
+            final pendientes = stats['pendientes']!;
+            final progreso = total > 0 ? jugados / total : 0.0;
+            final porcentaje = (progreso * 100).toStringAsFixed(0);
+
             return Container(
-              margin: const EdgeInsets.all(15),
-              padding: const EdgeInsets.symmetric(vertical: 20),
+              margin: const EdgeInsets.fromLTRB(15, 12, 15, 4),
+              padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: Colors.green[900]!.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: Colors.green[900]!, width: 1),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _itemEstadistica("Total", stats['total']!, Colors.white),
-                  _itemEstadistica(
-                    "Jugados",
-                    stats['jugados']!,
-                    Colors.greenAccent,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [AppColors.fondoSecundario, AppColors.fondoTarjeta],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppColors.dorado.withOpacity(0.2),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.dorado.withOpacity(0.06),
+                    blurRadius: 12,
+                    spreadRadius: 1,
                   ),
-                  _itemEstadistica(
-                    "Pendientes",
-                    stats['pendientes']!,
-                    Colors.amberAccent,
+                ],
+              ),
+              child: Column(
+                children: [
+                  // ── FILA DE 3 STATS ──────────────────────────────────────
+                  Row(
+                    children: [
+                      // Total
+                      Expanded(
+                        child: _statItem(
+                          valor: total,
+                          label: "Total",
+                          color: AppColors.textoBlanco,
+                          icon: Icons.calendar_month_outlined,
+                        ),
+                      ),
+
+                      // Divisor
+                      Container(
+                        width: 1,
+                        height: 40,
+                        color: AppColors.dorado.withOpacity(0.15),
+                      ),
+
+                      // Jugados
+                      Expanded(
+                        child: _statItem(
+                          valor: jugados,
+                          label: "Jugados",
+                          color: AppColors.verde,
+                          icon: Icons.check_circle_outline,
+                        ),
+                      ),
+
+                      // Divisor
+                      Container(
+                        width: 1,
+                        height: 40,
+                        color: AppColors.dorado.withOpacity(0.15),
+                      ),
+
+                      // Pendientes
+                      Expanded(
+                        child: _statItem(
+                          valor: pendientes,
+                          label: "Pendientes",
+                          color: AppColors.dorado,
+                          icon: Icons.schedule_outlined,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // ── BARRA DE PROGRESO ─────────────────────────────────────
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Progreso del torneo",
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textoGris,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                      Text(
+                        "$porcentaje%",
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.dorado,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: progreso,
+                      minHeight: 6,
+                      backgroundColor: AppColors.fondoPrincipal,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        progreso == 1.0 ? AppColors.verde : AppColors.dorado,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -2633,10 +2733,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   // ... aquí terminan tus otras funciones ...
-
-  Widget _itemEstadistica(String titulo, int valor, Color color) {
+  Widget _statItem({
+    required int valor,
+    required String label,
+    required Color color,
+    required IconData icon,
+  }) {
     return Column(
       children: [
+        Icon(icon, color: color, size: 16),
+        const SizedBox(height: 5),
         Text(
           "$valor",
           style: TextStyle(
@@ -2645,7 +2751,14 @@ class _HomePageState extends State<HomePage> {
             color: color,
           ),
         ),
-        Text(titulo, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 10,
+            color: AppColors.textoGris,
+            letterSpacing: 0.3,
+          ),
+        ),
       ],
     );
   }
