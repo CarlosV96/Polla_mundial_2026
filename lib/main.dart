@@ -284,8 +284,8 @@ class _HomePageState extends State<HomePage> {
 
               const SizedBox(height: 16),
 
-              const Text(
-                "ELIMINAR JUGADOR",
+              Text(
+                AppStrings.eliminarJugador,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
@@ -305,7 +305,7 @@ class _HomePageState extends State<HomePage> {
                     height: 1.5,
                   ),
                   children: [
-                    const TextSpan(text: "¿Eliminar a "),
+                    TextSpan(text: AppStrings.eliminarJugadorMsg(nombre)),
                     TextSpan(
                       text: nombre,
                       style: const TextStyle(
@@ -336,8 +336,8 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-                      child: const Text(
-                        "Cancelar",
+                      child: Text(
+                        AppStrings.cancelar,
                         style: TextStyle(color: AppColors.textoGris),
                       ),
                     ),
@@ -357,8 +357,8 @@ class _HomePageState extends State<HomePage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        "Eliminar",
+                      child: Text(
+                        AppStrings.eliminar,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -422,8 +422,8 @@ class _HomePageState extends State<HomePage> {
 
               const SizedBox(height: 16),
 
-              const Text(
-                "ELIMINAR PARTIDO",
+              Text(
+                AppStrings.eliminarPartido,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
@@ -443,7 +443,7 @@ class _HomePageState extends State<HomePage> {
                     height: 1.5,
                   ),
                   children: [
-                    const TextSpan(text: "Se eliminará el partido\n"),
+                    TextSpan(text: AppStrings.seEliminara),
                     TextSpan(
                       text: equipos,
                       style: const TextStyle(
@@ -451,10 +451,7 @@ class _HomePageState extends State<HomePage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const TextSpan(
-                      text:
-                          "\ny todas sus apuestas.\nSi ya tenía resultado, los puntos serán revertidos.",
-                    ),
+                    TextSpan(text: AppStrings.eliminarPartidoMsg)
                   ],
                 ),
               ),
@@ -475,8 +472,8 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-                      child: const Text(
-                        "Cancelar",
+                      child: Text(
+                        AppStrings.cancelar,
                         style: TextStyle(color: AppColors.textoGris),
                       ),
                     ),
@@ -496,8 +493,8 @@ class _HomePageState extends State<HomePage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        "Eliminar",
+                      child: Text(
+                        AppStrings.eliminar,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -790,16 +787,16 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           onTap: (index) => setState(() => _indiceActual = index),
-          items: const [
+          items: [
             BottomNavigationBarItem(
               icon: Icon(Icons.leaderboard_outlined),
               activeIcon: Icon(Icons.leaderboard),
-              label: 'Ranking',
+              label: AppStrings.navRanking,
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.sports_soccer_outlined),
               activeIcon: Icon(Icons.sports_soccer),
-              label: 'Partidos',
+              label: AppStrings.navPartidos,
             ),
           ],
         ),
@@ -869,8 +866,8 @@ class _HomePageState extends State<HomePage> {
 
                         const SizedBox(height: 16),
 
-                        const Text(
-                          "¡REINICIAR TORNEO!",
+                        Text(
+                          AppStrings.reiniciarTorneo,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -881,8 +878,8 @@ class _HomePageState extends State<HomePage> {
 
                         const SizedBox(height: 12),
 
-                        const Text(
-                          "Esta acción eliminará TODOS los jugadores, partidos, apuestas y puntos.\n\nEsta acción no se puede deshacer.",
+                        Text(
+                          AppStrings.reiniciarMsg,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 13,
@@ -907,8 +904,8 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                             ),
-                            child: const Text(
-                              "Cancelar",
+                            child: Text(
+                              AppStrings.cancelar,
                               style: TextStyle(color: AppColors.textoGris),
                             ),
                           ),
@@ -932,8 +929,8 @@ class _HomePageState extends State<HomePage> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            child: const Text(
-                              "SÍ, REINICIAR TODO",
+                            child: Text(
+                              AppStrings.siReiniciar,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1,
@@ -953,8 +950,8 @@ class _HomePageState extends State<HomePage> {
 
         const TrophyWidget(size: 88),
         const SizedBox(height: 6),
-        const Text(
-          "TABLA DE POSICIONES",
+        Text(
+          AppStrings.tablaPosiciones,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -1005,8 +1002,8 @@ class _HomePageState extends State<HomePage> {
                         color: AppColors.textoGris.withOpacity(0.5),
                       ),
                       const SizedBox(height: 12),
-                      const Text(
-                        "Aún no hay jugadores\n¡Regístralos para comenzar!",
+                      Text(
+                        AppStrings.sinJugadores,
                         textAlign: TextAlign.center,
                         style: TextStyle(color: AppColors.textoGris),
                       ),
@@ -1187,7 +1184,7 @@ class _HomePageState extends State<HomePage> {
             width: double.infinity,
             child: ElevatedButton.icon(
               icon: const Icon(Icons.person_add),
-              label: const Text("REGISTRAR JUGADOR"),
+              label: Text(AppStrings.registrarJugador),
               onPressed: () => _mostrarDialogoJugador(context),
             ),
           ),
@@ -1263,7 +1260,7 @@ class _HomePageState extends State<HomePage> {
                       Expanded(
                         child: _statItem(
                           valor: total,
-                          label: "Total",
+                          label: AppStrings.total,
                           color: AppColors.textoBlanco,
                           icon: Icons.calendar_month_outlined,
                         ),
@@ -1280,7 +1277,7 @@ class _HomePageState extends State<HomePage> {
                       Expanded(
                         child: _statItem(
                           valor: jugados,
-                          label: "Jugados",
+                          label: AppStrings.jugados,
                           color: AppColors.verde,
                           icon: Icons.check_circle_outline,
                         ),
@@ -1297,7 +1294,7 @@ class _HomePageState extends State<HomePage> {
                       Expanded(
                         child: _statItem(
                           valor: pendientes,
-                          label: "Pendientes",
+                          label: AppStrings.pendientes,
                           color: AppColors.dorado,
                           icon: Icons.schedule_outlined,
                         ),
@@ -1312,7 +1309,7 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Progreso del torneo",
+                        AppStrings.progresoTorneo,
                         style: TextStyle(
                           fontSize: 11,
                           color: AppColors.textoGris,
@@ -1359,8 +1356,8 @@ class _HomePageState extends State<HomePage> {
                     .fixtureYaCargado();
                 if (yaCargado) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("⚠️ Ya hay partidos cargados."),
+                    SnackBar(
+                      content: Text(AppStrings.yaHayPartidos),
                     ),
                   );
                   return;
@@ -1370,13 +1367,13 @@ class _HomePageState extends State<HomePage> {
                 );
                 setState(() {});
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("✅ Fixture del Mundial 2026 cargado!"),
+                  SnackBar(
+                    content: Text(AppStrings.fixtureCargado),
                   ),
                 );
               },
               icon: const Icon(Icons.download),
-              label: const Text("Cargar Mundial"),
+              label: Text(AppStrings.cargarMundial),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.amber[800],
               ),
@@ -1384,7 +1381,7 @@ class _HomePageState extends State<HomePage> {
             ElevatedButton.icon(
               onPressed: () => _mostrarDialogoPartido(context),
               icon: const Icon(Icons.add),
-              label: const Text("Partido Manual"),
+              label: Text(AppStrings.partidoManual),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green[800],
               ),
@@ -1399,7 +1396,7 @@ class _HomePageState extends State<HomePage> {
           padding: const EdgeInsets.symmetric(horizontal: 15),
           child: TextField(
             decoration: InputDecoration(
-              hintText: "Buscar equipo...",
+              hintText: AppStrings.buscarEquipo,
               prefixIcon: const Icon(Icons.search),
               suffixIcon: _filtroBusqueda.isNotEmpty
                   ? IconButton(
@@ -1454,8 +1451,8 @@ class _HomePageState extends State<HomePage> {
                 return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.data!.isEmpty) {
-                return const Center(
-                  child: Text("No has creado partidos todavía"),
+                return Center(
+                  child: Text(AppStrings.sinPartidos),
                 );
               }
 
@@ -1479,9 +1476,9 @@ class _HomePageState extends State<HomePage> {
               }).toList();
 
               if (partidos.isEmpty) {
-                return const Center(
+                return Center(
                   child: Text(
-                    "No hay partidos que coincidan con la búsqueda",
+                    AppStrings.sinResultados,
                     style: TextStyle(color: Colors.grey),
                   ),
                 );
@@ -1586,8 +1583,8 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 16),
 
               // Título
-              const Text(
-                "NUEVO PARTICIPANTE",
+              Text(
+                AppStrings.nuevoParticipante,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -1599,7 +1596,7 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 6),
 
               Text(
-                "Ingresa el nombre del jugador",
+                AppStrings.ingresaNombre,
                 style: TextStyle(fontSize: 12, color: AppColors.textoGris),
               ),
 
@@ -1612,7 +1609,7 @@ class _HomePageState extends State<HomePage> {
                 textCapitalization: TextCapitalization.words,
                 style: const TextStyle(color: AppColors.textoBlanco),
                 decoration: InputDecoration(
-                  hintText: "Nombre del participante",
+                  hintText: AppStrings.nombreParticipante,
                   prefixIcon: const Icon(
                     Icons.person_outline,
                     color: AppColors.dorado,
@@ -1664,8 +1661,8 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-                      child: const Text(
-                        "Cancelar",
+                      child: Text(
+                        AppStrings.cancelar,
                         style: TextStyle(color: AppColors.textoGris),
                       ),
                     ),
@@ -1752,8 +1749,8 @@ class _HomePageState extends State<HomePage> {
 
               const SizedBox(height: 16),
 
-              const Text(
-                "NUEVO PARTIDO",
+              Text(
+                AppStrings.nuevoPartido,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -1765,7 +1762,7 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 6),
 
               Text(
-                "Ingresa los equipos que se enfrentan",
+                AppStrings.equiposEnfrentan,
                 style: TextStyle(fontSize: 12, color: AppColors.textoGris),
               ),
 
@@ -1778,7 +1775,7 @@ class _HomePageState extends State<HomePage> {
                 textCapitalization: TextCapitalization.words,
                 style: const TextStyle(color: AppColors.textoBlanco),
                 decoration: InputDecoration(
-                  hintText: "Equipo local",
+                  hintText: AppStrings.equipoLocal,
                   prefixIcon: const Icon(
                     Icons.shield_outlined,
                     color: AppColors.dorado,
@@ -1843,7 +1840,7 @@ class _HomePageState extends State<HomePage> {
                 textCapitalization: TextCapitalization.words,
                 style: const TextStyle(color: AppColors.textoBlanco),
                 decoration: InputDecoration(
-                  hintText: "Equipo visitante",
+                  hintText: AppStrings.equipoVisitante,
                   prefixIcon: const Icon(
                     Icons.shield_outlined,
                     color: AppColors.acento,
@@ -1895,8 +1892,8 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-                      child: const Text(
-                        "Cancelar",
+                      child: Text(
+                        AppStrings.cancelar,
                         style: TextStyle(color: AppColors.textoGris),
                       ),
                     ),
@@ -1995,8 +1992,8 @@ class _HomePageState extends State<HomePage> {
                       size: 28,
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      "REALIZAR APUESTA",
+                    Text(
+                      AppStrings.realizarApuesta,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -2019,8 +2016,8 @@ class _HomePageState extends State<HomePage> {
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<int>(
                           isExpanded: true,
-                          hint: const Text(
-                            "¿Quién apuesta?",
+                          hint: Text(
+                            AppStrings.quienApuesta,
                             style: TextStyle(
                               color: AppColors.textoGris,
                               fontSize: 13,
@@ -2216,7 +2213,7 @@ class _HomePageState extends State<HomePage> {
                       builder: (context, snap) {
                         if (!snap.hasData || snap.data!.isEmpty) {
                           return Text(
-                            "Nadie ha apostado aún",
+                            AppStrings.nadieHaApostado,
                             style: TextStyle(
                               fontSize: 11,
                               color: AppColors.textoGris,
@@ -2227,7 +2224,7 @@ class _HomePageState extends State<HomePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "APUESTAS REGISTRADAS",
+                              AppStrings.apuestasRegistradas,
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
@@ -2305,8 +2302,8 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                             ),
-                            child: const Text(
-                              "Cancelar",
+                            child: Text(
+                              AppStrings.cancelar,
                               style: TextStyle(color: AppColors.textoGris),
                             ),
                           ),
@@ -2327,8 +2324,8 @@ class _HomePageState extends State<HomePage> {
                                       futureKey = UniqueKey();
                                     });
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text("¡Apuesta registrada!"),
+                                      SnackBar(
+                                        content: Text(AppStrings.apuestaRegistrada),
                                         duration: Duration(seconds: 1),
                                       ),
                                     );
@@ -2343,8 +2340,8 @@ class _HomePageState extends State<HomePage> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            child: const Text(
-                              "Confirmar",
+                            child: Text(
+                              AppStrings.confirmar ,
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -2445,8 +2442,8 @@ class _HomePageState extends State<HomePage> {
 
                   const SizedBox(height: 12),
 
-                  const Text(
-                    "RESULTADO OFICIAL",
+                  Text(
+                    AppStrings.resultadoOficial,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
@@ -2629,7 +2626,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       const SizedBox(width: 5),
                       Text(
-                        "Esta acción calculará los puntos automáticamente",
+                        AppStrings.accionCalculara,
                         style: TextStyle(
                           fontSize: 10,
                           color: AppColors.textoGris,
@@ -2655,8 +2652,8 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                           ),
-                          child: const Text(
-                            "Cancelar",
+                          child: Text(
+                            AppStrings.cancelar,
                             style: TextStyle(color: AppColors.textoGris),
                           ),
                         ),
@@ -2672,9 +2669,9 @@ class _HomePageState extends State<HomePage> {
                             );
                             Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                 content: Text(
-                                  "🏆 Puntos calculados y ranking actualizado",
+                                  AppStrings.puntosActualizados,
                                 ),
                               ),
                             );
@@ -2687,8 +2684,8 @@ class _HomePageState extends State<HomePage> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
-                            "Finalizar",
+                          child: Text(
+                            AppStrings.finalizar,
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -2858,8 +2855,8 @@ class _HomePageState extends State<HomePage> {
 
               const SizedBox(height: 12),
 
-              const Text(
-                "RESUMEN DEL PARTIDO",
+              Text(
+                AppStrings.resumenPartido,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
@@ -2935,7 +2932,7 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Text(
-                    "Nadie apostó en este partido",
+                    AppStrings.nadiAposto,
                     style: TextStyle(color: AppColors.textoGris),
                   ),
                 )
@@ -2973,15 +2970,15 @@ class _HomePageState extends State<HomePage> {
 
                       if (puntos == 3) {
                         resultColor = const Color(0xFFFFD700);
-                        resultLabel = "Exacto";
+                        resultLabel = AppStrings.exacto;
                         resultIcon = Icons.gps_fixed;
                       } else if (puntos == 1) {
                         resultColor = AppColors.acento;
-                        resultLabel = "Ganador";
+                        resultLabel = AppStrings.ganador;
                         resultIcon = Icons.check_circle_outline;
                       } else {
                         resultColor = AppColors.rojo;
-                        resultLabel = "Falló";
+                        resultLabel = AppStrings.fallo;
                         resultIcon = Icons.cancel_outlined;
                       }
 
@@ -3041,7 +3038,7 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    "Apostó: $predA — $predB",
+                                    "${AppStrings.aposto}: $predA — $predB",
                                     style: const TextStyle(
                                       fontSize: 11,
                                       color: AppColors.textoGris,
@@ -3088,8 +3085,8 @@ class _HomePageState extends State<HomePage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    "Cerrar",
+                  child: Text(
+                    AppStrings.cerrar,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
