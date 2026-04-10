@@ -3,6 +3,7 @@ class AppStrings {
 
   // ── APP ───────────────────────────────────────────
   static String get appTitulo => idioma == 'es' ? 'POLLA MUNDIAL' : 'WORLD CUP';
+  static String get appNombre => idioma == 'es' ? 'POLLA MUNDIAL' : 'WORLD CUP';
 
   // ── NAVEGACIÓN ────────────────────────────────────
   static String get navRanking => idioma == 'es' ? 'Ranking' : 'Ranking';
@@ -144,8 +145,8 @@ class AppStrings {
   static String get version => idioma == 'es' ? 'Versión' : 'Version';
   static String get acercaDe => idioma == 'es' ? 'Acerca de' : 'About';
   static String get acercaDeDesc => idioma == 'es'
-      ? 'Polla Mundial 2026 — Creada con ❤️'
-      : 'World Cup Predictor 2026 — Made with ❤️';
+      ? 'Polla Mundial 2026 — Creada por Carlos Valencia'
+      : 'World Cup Predictor 2026 — Created by Carlos Valencia';
 
   // ── FLIP CARD ─────────────────────────────────────────────────────
   static String get tocaParaAcciones =>
@@ -154,4 +155,27 @@ class AppStrings {
   static String get apostar => idioma == 'es' ? 'Apostar' : 'Bet';
   static String get apuestas => idioma == 'es' ? 'Apuestas' : 'Bets';
   static String get grupo => idioma == 'es' ? 'Grupo' : 'Group';
+
+  // ── MODO DE JUEGO ──────────────────────────────────────────────────────────
+  static String get modoJuego => idioma == 'es' ? 'Modo de Juego' : 'Game Mode';
+  static String get modoJuegoDesc => idioma == 'es'
+      ? 'Cómo se calculan los puntos'
+      : 'How points are calculated';
+
+  static String get modoClasico => idioma == 'es' ? 'Clásico' : 'Classic';
+  static String get modoClasicoDesc => idioma == 'es'
+      ? '3 pts marcador exacto · 1 pt ganador/empate'
+      : '3 pts exact score · 1 pt winner/draw';
+
+  static String get modoExacto => idioma == 'es' ? 'Solo Exacto' : 'Exact Only';
+  static String get modoExactoDesc => idioma == 'es'
+      ? '1 pt solo si aciertas el marcador exacto'
+      : '1 pt only if you nail the exact score';
+
+  static String get jugadorYaRegistrado => idioma == 'es'
+      ? '⚠️ Este jugador ya está registrado.'
+      : '⚠️ This player is already registered.';
+
+  static String get fechaNoDisponible =>
+      idioma == 'es' ? 'Fecha por confirmar' : 'Date TBD';
 }

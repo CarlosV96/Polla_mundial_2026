@@ -13,6 +13,7 @@ import 'ad_helper.dart';
 import 'app_settings.dart';
 import 'app_strings.dart';
 import 'settings_page.dart';
+import 'splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -178,7 +179,7 @@ class PollaMundialApp extends StatelessWidget {
               ),
             ),
           ),
-          home: const HomePage(),
+          home: const SplashScreen(),
         );
       },
     );
@@ -195,7 +196,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _indiceActual = 0; // 0 para Ranking, 1 para Partidos
   String _filtroBusqueda = '';
-  String _filtroGrupo = 'Todos';
+  String _filtroGrupo = '';
 
   // --- FUNCIONES DE BASE DE DATOS PARA PARTICIPANTES ---
   Future<List<Map<String, dynamic>>> _obtenerParticipantes() async {
@@ -306,16 +307,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                   children: [
                     TextSpan(text: AppStrings.eliminarJugadorMsg(nombre)),
-                    TextSpan(
-                      text: nombre,
-                      style: const TextStyle(
-                        color: AppColors.textoBlanco,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const TextSpan(
-                      text: "?\nSe borrarán sus puntos y todas sus apuestas.",
-                    ),
                   ],
                 ),
               ),
@@ -451,7 +442,7 @@ class _HomePageState extends State<HomePage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    TextSpan(text: AppStrings.eliminarPartidoMsg)
+                    TextSpan(text: AppStrings.eliminarPartidoMsg),
                   ],
                 ),
               ),
@@ -587,33 +578,32 @@ class _HomePageState extends State<HomePage> {
       int prediccionB = apuesta['predict_score_b'] as int;
       int idJugador = apuesta['participant_id'] as int;
 
-      // Condición A: Acertó el marcador EXACTO (3 puntos)
-      if (prediccionA == resultadoRealA && prediccionB == resultadoRealB) {
-        puntosGanados = 3;
-      }
-      // Condición B: No acertó exacto, pero acertó al GANADOR o al EMPATE (1 punto)
-      else {
-        // ¿Quién ganó en la realidad? (1 = Equipo A, -1 = Equipo B, 0 = Empate)
-        int ganadorReal = (resultadoRealA > resultadoRealB)
-            ? 1
-            : (resultadoRealA < resultadoRealB)
-            ? -1
-            : 0;
-        // ¿Quién predijo que ganaría?
-        int ganadorPredicho = (prediccionA > prediccionB)
-            ? 1
-            : (prediccionA < prediccionB)
-            ? -1
-            : 0;
+      final esExacto =
+          prediccionA == resultadoRealA && prediccionB == resultadoRealB;
 
-        if (ganadorReal == ganadorPredicho) {
-          puntosGanados = 1;
+      if (AppSettings.instance.gameMode == 'clasico') {
+        // ── Modo Clásico: 3pts exacto, 1pt ganador/empate ─────────────────
+        if (esExacto) {
+          puntosGanados = 3;
+        } else {
+          int ganadorReal = resultadoRealA > resultadoRealB
+              ? 1
+              : resultadoRealA < resultadoRealB
+              ? -1
+              : 0;
+          int ganadorPredicho = prediccionA > prediccionB
+              ? 1
+              : prediccionA < prediccionB
+              ? -1
+              : 0;
+          if (ganadorReal == ganadorPredicho) puntosGanados = 1;
         }
+      } else {
+        // ── Modo Solo Exacto: 1pt solo si acierta el marcador exacto ──────
+        if (esExacto) puntosGanados = 1;
       }
 
-      // 4. Si ganó puntos, se los sumamos a su perfil en la base de datos
       if (puntosGanados > 0) {
-        // Obtenemos los puntos actuales del jugador
         final jugadorData = await db.query(
           'participants',
           where: 'id = ?',
@@ -621,8 +611,6 @@ class _HomePageState extends State<HomePage> {
         );
         if (jugadorData.isNotEmpty) {
           int puntosActuales = jugadorData.first['points'] as int;
-
-          // Actualizamos sumando los nuevos puntos
           await db.update(
             'participants',
             {'points': puntosActuales + puntosGanados},
@@ -673,7 +661,7 @@ class _HomePageState extends State<HomePage> {
     if (existente.isNotEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("⚠️ Este jugador ya está registrado.")),
+          SnackBar(content: Text(AppStrings.jugadorYaRegistrado)),
         );
       }
       return;
@@ -711,11 +699,10 @@ class _HomePageState extends State<HomePage> {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // ✅ Balón girando
-            const SoccerBallWidget(size: 28),
+            Image.asset('assets/images/ball.png', width: 64, height: 64),
             const SizedBox(width: 10),
-            const Text(
-              "POLLA MUNDIAL",
+            Text(
+              AppStrings.appNombre,
               style: TextStyle(
                 fontFamily: 'Georgia',
                 fontSize: 18,
@@ -812,7 +799,13 @@ class _HomePageState extends State<HomePage> {
         Align(
           alignment: Alignment.topRight,
           child: IconButton(
-            icon: const Icon(Icons.delete_forever, color: AppColors.rojo),
+            padding: EdgeInsets.all(4),
+            constraints: BoxConstraints(),
+            icon: Image.asset(
+              'assets/images/trash_3d.png',
+              width: 24,
+              height: 24,
+            ),
             onPressed: () {
               showDialog(
                 context: context,
@@ -948,8 +941,8 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
 
-        const TrophyWidget(size: 88),
-        const SizedBox(height: 6),
+        Image.asset('assets/images/trophy.png', width: 120, height: 120),
+        const SizedBox(height: 2),
         Text(
           AppStrings.tablaPosiciones,
           style: TextStyle(
@@ -959,7 +952,7 @@ class _HomePageState extends State<HomePage> {
             letterSpacing: 2.5,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 2),
 
         // ✅ PODIO 3D
         FutureBuilder<List<Map<String, dynamic>>>(
@@ -969,18 +962,18 @@ class _HomePageState extends State<HomePage> {
               return const SizedBox.shrink();
             }
             final j = snapshot.data!;
-            return PodiumWidget(
-              primerNombre: j.length > 0 ? j[0]['name'] : null,
-              primerPuntos: j.length > 0 ? j[0]['points'] : 0,
-              segundoNombre: j.length > 1 ? j[1]['name'] : null,
-              segundoPuntos: j.length > 1 ? j[1]['points'] : 0,
-              tercerNombre: j.length > 2 ? j[2]['name'] : null,
-              tercerPuntos: j.length > 2 ? j[2]['points'] : 0,
+            return PodiumFIFA(
+              primero: j.length > 0 ? j[0]['name'] : null,
+              puntos1: j.length > 0 ? j[0]['points'] : 0,
+              segundo: j.length > 1 ? j[1]['name'] : null,
+              puntos2: j.length > 1 ? j[1]['points'] : 0,
+              tercero: j.length > 2 ? j[2]['name'] : null,
+              puntos3: j.length > 2 ? j[2]['points'] : 0,
             );
           },
         ),
 
-        const SizedBox(height: 10),
+        const SizedBox(height: 4),
 
         Expanded(
           child: FutureBuilder<List<Map<String, dynamic>>>(
@@ -1063,7 +1056,7 @@ class _HomePageState extends State<HomePage> {
                       );
                     },
                     child: Container(
-                      margin: const EdgeInsets.only(bottom: 10),
+                      margin: const EdgeInsets.only(bottom: 6),
                       decoration: BoxDecoration(
                         color: AppColors.fondoTarjeta,
                         borderRadius: BorderRadius.circular(12),
@@ -1071,102 +1064,90 @@ class _HomePageState extends State<HomePage> {
                           color: colorBorde,
                           width: puesto <= 3 ? 1.5 : 1,
                         ),
-                        boxShadow: puesto <= 3
-                            ? [
-                                BoxShadow(
-                                  color: colorMedalla.withOpacity(0.15),
-                                  blurRadius: 8,
-                                  spreadRadius: 1,
-                                ),
-                              ]
-                            : null,
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 15,
-                          vertical: 12,
-                        ),
-                        child: Row(
-                          children: [
-                            // Número de puesto
-                            SizedBox(
-                              width: 30,
-                              child: Text(
-                                "$puesto",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: colorMedalla,
+                      child: SizedBox(
+                        height: 52,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 30,
+                                child: Text(
+                                  "$puesto",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: colorMedalla,
+                                  ),
                                 ),
                               ),
-                            ),
 
-                            // Icono medalla (solo top 3)
-                            if (puesto <= 3)
-                              Padding(
-                                padding: const EdgeInsets.only(right: 10),
-                                child: Icon(
-                                  iconoMedalla,
-                                  color: colorMedalla,
-                                  size: 22,
-                                ),
-                              )
-                            else
-                              const SizedBox(width: 32),
+                              if (puesto <= 3)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10),
+                                  child: SizedBox(
+                                    width: 30,
+                                    height: 60,
+                                    child: Image.asset(
+                                      puesto == 1
+                                          ? 'assets/images/medal_gold.png'
+                                          : puesto == 2
+                                          ? 'assets/images/medal_silver.png'
+                                          : 'assets/images/medal_bronze.png',
+                                      width: 28,
+                                      height: 28,
+                                    ),
+                                  ),
+                                )
+                              else
+                                const SizedBox(width: 40),
 
-                            // Nombre del jugador
-                            Expanded(
-                              child: Text(
-                                j['name'],
-                                style: TextStyle(
-                                  fontSize: tamanoLetra,
-                                  fontWeight: puesto <= 3
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                  color: AppColors.textoBlanco,
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    j['name'],
+                                    style: TextStyle(
+                                      fontSize: tamanoLetra,
+                                      fontWeight: puesto <= 3
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      color: AppColors.textoBlanco,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
 
-                            // Puntos
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: colorMedalla.withOpacity(0.15),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: colorMedalla.withOpacity(0.4),
+                              Align(
+                                alignment: Alignment.center,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 5,
+                                  ),
+                                  // DESPUÉS — transparente con solo borde sutil:
+                                  decoration: BoxDecoration(
+                                    color: Colors.transparent,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: colorMedalla.withOpacity(0.5),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    "${j['points']} pts",
+                                    style: TextStyle(
+                                      color: colorMedalla,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                    ),
+                                  ),
                                 ),
                               ),
-                              child: Text(
-                                "${j['points']} pts",
-                                style: TextStyle(
-                                  color: colorMedalla,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-
-                            // Botón eliminar
-                            IconButton(
-                              icon: Icon(
-                                Icons.delete_outline,
-                                color: AppColors.rojo.withOpacity(0.6),
-                                size: 18,
-                              ),
-                              onPressed: () {
-                                _confirmarEliminacionJugador(
-                                  context,
-                                  j['id'],
-                                  j['name'],
-                                );
-                              },
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -1194,8 +1175,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _seccionPartidos() {
+    final String todosLabel = AppStrings.idioma == 'es' ? 'Todos' : 'All';
     final grupos = [
-      'Todos',
+      todosLabel,
       'A',
       'B',
       'C',
@@ -1356,9 +1338,7 @@ class _HomePageState extends State<HomePage> {
                     .fixtureYaCargado();
                 if (yaCargado) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(AppStrings.yaHayPartidos),
-                    ),
+                    SnackBar(content: Text(AppStrings.yaHayPartidos)),
                   );
                   return;
                 }
@@ -1367,9 +1347,7 @@ class _HomePageState extends State<HomePage> {
                 );
                 setState(() {});
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(AppStrings.fixtureCargado),
-                  ),
+                  SnackBar(content: Text(AppStrings.fixtureCargado)),
                 );
               },
               icon: const Icon(Icons.download),
@@ -1451,9 +1429,7 @@ class _HomePageState extends State<HomePage> {
                 return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.data!.isEmpty) {
-                return Center(
-                  child: Text(AppStrings.sinPartidos),
-                );
+                return Center(child: Text(AppStrings.sinPartidos));
               }
 
               // Aplicar filtros
@@ -1468,7 +1444,7 @@ class _HomePageState extends State<HomePage> {
                     teamB.contains(busqueda);
 
                 final coincideGrupo =
-                    _filtroGrupo == 'Todos' ||
+                    _filtroGrupo == todosLabel ||
                     (p['group_name'] != null &&
                         p['group_name'] == _filtroGrupo);
 
@@ -1682,8 +1658,8 @@ class _HomePageState extends State<HomePage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        "Registrar",
+                      child: Text(
+                        AppStrings.registrar,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -1913,8 +1889,8 @@ class _HomePageState extends State<HomePage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        "Crear Partido",
+                      child: Text(
+                        AppStrings.crearPartido,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -1986,10 +1962,10 @@ class _HomePageState extends State<HomePage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // ── TÍTULO ──────────────────────────────────────────
-                    const Icon(
-                      Icons.casino_outlined,
-                      color: AppColors.dorado,
-                      size: 28,
+                    Image.asset(
+                      'assets/images/dice_3d.png',
+                      width: 36,
+                      height: 36,
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -2325,7 +2301,9 @@ class _HomePageState extends State<HomePage> {
                                     });
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text(AppStrings.apuestaRegistrada),
+                                        content: Text(
+                                          AppStrings.apuestaRegistrada,
+                                        ),
                                         duration: Duration(seconds: 1),
                                       ),
                                     );
@@ -2341,7 +2319,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             child: Text(
-                              AppStrings.confirmar ,
+                              AppStrings.confirmar,
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -2433,10 +2411,10 @@ class _HomePageState extends State<HomePage> {
                         color: AppColors.verde.withOpacity(0.4),
                       ),
                     ),
-                    child: const Icon(
-                      Icons.sports_score,
-                      color: AppColors.verde,
-                      size: 30,
+                    child: Image.asset(
+                      'assets/images/whistle_3d.png',
+                      width: 36,
+                      height: 36,
                     ),
                   ),
 
@@ -2670,9 +2648,7 @@ class _HomePageState extends State<HomePage> {
                             Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(
-                                  AppStrings.puntosActualizados,
-                                ),
+                                content: Text(AppStrings.puntosActualizados),
                               ),
                             );
                           },
@@ -2723,12 +2699,27 @@ class _HomePageState extends State<HomePage> {
         int idJugador = apuesta['participant_id'] as int;
 
         // Calcular cuánto ganó en ese momento
-        if (predA == resA && predB == resB) {
-          puntosARestar = 3;
+        final esExacto = predA == resA && predB == resB;
+
+        if (AppSettings.instance.gameMode == 'clasico') {
+          if (esExacto) {
+            puntosARestar = 3;
+          } else {
+            int ganReal = resA > resB
+                ? 1
+                : resA < resB
+                ? -1
+                : 0;
+            int ganPred = predA > predB
+                ? 1
+                : predA < predB
+                ? -1
+                : 0;
+            if (ganReal == ganPred) puntosARestar = 1;
+          }
         } else {
-          int ganReal = (resA > resB) ? 1 : (resA < resB ? -1 : 0);
-          int ganPred = (predA > predB) ? 1 : (predA < predB ? -1 : 0);
-          if (ganReal == ganPred) puntosARestar = 1;
+          // Modo Solo Exacto
+          if (esExacto) puntosARestar = 1;
         }
 
         // Restar los puntos al jugador
@@ -2948,20 +2939,27 @@ class _HomePageState extends State<HomePage> {
                       final predB = a['predict_score_b'] as int;
 
                       int puntos = 0;
-                      if (predA == resultadoA && predB == resultadoB) {
-                        puntos = 3;
+                      final esExacto =
+                          predA == resultadoA && predB == resultadoB;
+
+                      if (AppSettings.instance.gameMode == 'clasico') {
+                        if (esExacto) {
+                          puntos = 3;
+                        } else {
+                          int ganReal = resultadoA > resultadoB
+                              ? 1
+                              : resultadoA < resultadoB
+                              ? -1
+                              : 0;
+                          int ganPred = predA > predB
+                              ? 1
+                              : predA < predB
+                              ? -1
+                              : 0;
+                          if (ganReal == ganPred) puntos = 1;
+                        }
                       } else {
-                        int ganReal = resultadoA > resultadoB
-                            ? 1
-                            : resultadoA < resultadoB
-                            ? -1
-                            : 0;
-                        int ganPred = predA > predB
-                            ? 1
-                            : predA < predB
-                            ? -1
-                            : 0;
-                        if (ganReal == ganPred) puntos = 1;
+                        if (esExacto) puntos = 1;
                       }
 
                       Color resultColor;
@@ -3051,7 +3049,15 @@ class _HomePageState extends State<HomePage> {
                             // Etiqueta resultado
                             Row(
                               children: [
-                                Icon(resultIcon, size: 14, color: resultColor),
+                                Image.asset(
+                                  puntos == 3
+                                      ? 'assets/images/star_win_3d.png'
+                                      : puntos == 1
+                                      ? 'assets/images/shield_win_3d.png'
+                                      : 'assets/images/ball_fail_3d.png',
+                                  width: 18,
+                                  height: 18,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   resultLabel,

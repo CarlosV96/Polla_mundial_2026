@@ -19,7 +19,12 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return await openDatabase(
+      path,
+      version: 2, // ← sube de 1 a 2
+      onCreate: _createDB,
+      onUpgrade: _upgradeDB, // ← NUEVO
+    );
   }
 
   // Aquí definimos la estructura de nuestra Polla
@@ -41,7 +46,8 @@ class DatabaseHelper {
     team_b TEXT NOT NULL,
     score_a INTEGER,
     score_b INTEGER,
-    group_name TEXT
+    group_name TEXT,
+    match_date TEXT 
   )
 ''');
 
@@ -179,17 +185,24 @@ class DatabaseHelper {
   }
 
   Future<void> cargarFixtureMundial(List<Map<String, String>> partidos) async {
-  final db = await database;
-  final batch = db.batch();
-  for (final p in partidos) {
-    batch.insert('matches', {
-      'team_a': p['team_a'],
-      'team_b': p['team_b'],
-      'group_name': p['group'], // ✅ Ahora guarda el grupo
-      'score_a': null,
-      'score_b': null,
-    });
+    final db = await database;
+    final batch = db.batch();
+    for (final p in partidos) {
+      batch.insert('matches', {
+        'team_a': p['team_a'],
+        'team_b': p['team_b'],
+        'group_name': p['group'],
+        'match_date': p['date'], // ← NUEVO (key a confirmar con WorldCupData)
+        'score_a': null,
+        'score_b': null,
+      });
+    }
+    await batch.commit(noResult: true);
   }
-  await batch.commit(noResult: true);
-}
+
+  Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE matches ADD COLUMN match_date TEXT');
+    }
+  }
 }

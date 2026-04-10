@@ -71,11 +71,11 @@ class _FlipMatchCardState extends State<FlipMatchCard>
         // Cara trasera: rotateY de (angle - π), va de -π/2 → 0 (aparece sin espejo)
         final transform = showingFront
             ? (Matrix4.identity()
-              ..setEntry(3, 2, 0.001)
-              ..rotateY(angle))
+                ..setEntry(3, 2, 0.001)
+                ..rotateY(angle))
             : (Matrix4.identity()
-              ..setEntry(3, 2, 0.001)
-              ..rotateY(angle - math.pi));
+                ..setEntry(3, 2, 0.001)
+                ..rotateY(angle - math.pi));
 
         return Transform(
           transform: transform,
@@ -121,6 +121,7 @@ class _FrontFace extends StatelessWidget {
     final String equipoA = partido['team_a'] as String;
     final String equipoB = partido['team_b'] as String;
     final String? grupo = partido['group_name'] as String?;
+    final String? fecha = partido['match_date'] as String?;
 
     // Colores según estado
     final Color borderColor = finalizado
@@ -132,11 +133,15 @@ class _FrontFace extends StatelessWidget {
     final Color headerEnd = finalizado
         ? const Color(0xFF2D6A4F).withOpacity(0.7)
         : AppColors.fondoTarjeta;
-    final Color statusColor =
-        finalizado ? AppColors.verde : AppColors.textoGris;
-    final IconData statusIcon =
-        finalizado ? Icons.check_circle_outline : Icons.touch_app_outlined;
-    final String statusLabel = finalizado ? AppStrings.finalizado : AppStrings.tocaParaAcciones;
+    final Color statusColor = finalizado
+        ? AppColors.verde
+        : AppColors.textoGris;
+    final IconData statusIcon = finalizado
+        ? Icons.check_circle_outline
+        : Icons.touch_app_outlined;
+    final String statusLabel = finalizado
+        ? AppStrings.finalizado
+        : AppStrings.tocaParaAcciones;
 
     return GestureDetector(
       onTap: onFlip,
@@ -172,13 +177,17 @@ class _FrontFace extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Grupo
+                  // Izquierda: grupo
                   if (grupo != null)
                     _GroupBadge(grupo: grupo, finalizado: finalizado)
                   else
-                    const SizedBox.shrink(),
+                    const SizedBox(
+                      width: 60,
+                    ), // ← mantiene espaciado si no hay grupo
+                  // Centro: fecha  ← NUEVO
+                  _DateLabel(fecha: fecha, finalizado: finalizado),
 
-                  // Estado
+                  // Derecha: estado
                   Row(
                     children: [
                       Icon(statusIcon, size: 11, color: statusColor),
@@ -285,6 +294,91 @@ class _GroupBadge extends StatelessWidget {
   }
 }
 
+class _DateLabel extends StatelessWidget {
+  final String? fecha;
+  final bool finalizado;
+
+  const _DateLabel({required this.fecha, required this.finalizado});
+
+  /// "2026-06-11" → "11 Jun" / "Jun 11" según idioma
+  String _formatear(String raw) {
+    try {
+      final partes = raw.split('-'); // [2026, 06, 11]
+      if (partes.length < 3) return raw;
+
+      final dia = partes[2];
+      final mes = int.parse(partes[1]);
+
+      const mesesEs = [
+        '',
+        'Ene',
+        'Feb',
+        'Mar',
+        'Abr',
+        'May',
+        'Jun',
+        'Jul',
+        'Ago',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dic',
+      ];
+      const mesesEn = [
+        '',
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+
+      final nombreMes = AppStrings.idioma == 'es' ? mesesEs[mes] : mesesEn[mes];
+
+      return AppStrings.idioma == 'es'
+          ? '$dia $nombreMes' // "11 Jun"
+          : '$nombreMes $dia'; // "Jun 11"
+    } catch (_) {
+      return raw;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Color color = finalizado
+        ? AppColors.verde.withOpacity(0.7)
+        : AppColors.dorado.withOpacity(0.6);
+
+    final String texto = fecha != null && fecha!.isNotEmpty
+        ? _formatear(fecha!)
+        : AppStrings.fechaNoDisponible;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.calendar_today_outlined, size: 9, color: color),
+        const SizedBox(width: 3),
+        Text(
+          texto,
+          style: TextStyle(
+            fontSize: 9.5,
+            color: color,
+            letterSpacing: 0.3,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _VsBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -294,10 +388,7 @@ class _VsBadge extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: AppColors.dorado.withOpacity(0.07),
-        border: Border.all(
-          color: AppColors.dorado.withOpacity(0.4),
-          width: 1,
-        ),
+        border: Border.all(color: AppColors.dorado.withOpacity(0.4), width: 1),
       ),
       child: const Center(
         child: Text(
@@ -374,10 +465,7 @@ class _BackFace extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppColors.fondoSecundario,
-            AppColors.fondoTarjeta,
-          ],
+          colors: [AppColors.fondoSecundario, AppColors.fondoTarjeta],
         ),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
@@ -421,62 +509,64 @@ class _BackFace extends StatelessWidget {
   }
 
   List<Widget> _botonesPendientes(BuildContext context) => [
-        _ActionButton(
-          icon: Icons.casino_outlined,
-          label: AppStrings.apostar,
-          color: AppColors.acento,
-          onTap: onApostar,
-        ),
-        _ActionButton(
-          icon: Icons.sports_score_outlined,
-          label: AppStrings.resultado,
-          color: AppColors.dorado,
-          onTap: onIngresarResultado,
-        ),
-        _ActionButton(
-          icon: Icons.delete_outline,
-          label: AppStrings.eliminar,
-          color: AppColors.rojo,
-          onTap: onEliminar,
-        ),
-        _ActionButton(
-          icon: Icons.keyboard_arrow_down_rounded,
-          label: AppStrings.cerrar,
-          color: AppColors.textoGris,
-          onTap: onClose,
-        ),
-      ];
+    _ActionButton(
+      imagePath: 'assets/images/dice_3d.png',
+      label: AppStrings.apostar,
+      color: AppColors.acento,
+      onTap: onApostar,
+    ),
+    _ActionButton(
+      icon: Icons.sports_score_outlined,
+      label: AppStrings.resultado,
+      color: AppColors.dorado,
+      onTap: onIngresarResultado,
+    ),
+    _ActionButton(
+      imagePath: 'assets/images/trash_3d.png',
+      label: AppStrings.eliminar,
+      color: AppColors.rojo,
+      onTap: onEliminar,
+    ),
+    _ActionButton(
+      icon: Icons.keyboard_arrow_down_rounded,
+      label: AppStrings.cerrar,
+      color: AppColors.textoGris,
+      onTap: onClose,
+    ),
+  ];
 
   List<Widget> _botonesFinalizados(BuildContext context) => [
-        _ActionButton(
-          icon: Icons.bar_chart_rounded,
-          label: AppStrings.apuestas,
-          color: AppColors.acento,
-          onTap: onVerApuestas,
-        ),
-        _ActionButton(
-          icon: Icons.delete_outline,
-          label: AppStrings.eliminar,
-          color: AppColors.rojo,
-          onTap: onEliminar,
-        ),
-        _ActionButton(
-          icon: Icons.keyboard_arrow_down_rounded,
-          label: AppStrings.cerrar,
-          color: AppColors.textoGris,
-          onTap: onClose,
-        ),
-      ];
+    _ActionButton(
+      icon: Icons.bar_chart_rounded,
+      label: AppStrings.apuestas,
+      color: AppColors.acento,
+      onTap: onVerApuestas,
+    ),
+    _ActionButton(
+      imagePath: 'assets/images/trash_3d.png',
+      label: AppStrings.eliminar,
+      color: AppColors.rojo,
+      onTap: onEliminar,
+    ),
+    _ActionButton(
+      icon: Icons.keyboard_arrow_down_rounded,
+      label: AppStrings.cerrar,
+      color: AppColors.textoGris,
+      onTap: onClose,
+    ),
+  ];
 }
 
 class _ActionButton extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final String? imagePath;
   final String label;
   final Color color;
   final VoidCallback? onTap;
 
   const _ActionButton({
-    required this.icon,
+    this.icon,
+    this.imagePath,
     required this.label,
     required this.color,
     this.onTap,
@@ -485,7 +575,9 @@ class _ActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool enabled = onTap != null;
-    final effectiveColor = enabled ? color : AppColors.textoGris.withOpacity(0.4);
+    final effectiveColor = enabled
+        ? color
+        : AppColors.textoGris.withOpacity(0.4);
 
     return GestureDetector(
       onTap: onTap,
@@ -504,7 +596,11 @@ class _ActionButton extends StatelessWidget {
                 width: 1,
               ),
             ),
-            child: Icon(icon, color: effectiveColor, size: 21),
+            child: Center(
+              child: imagePath != null
+                  ? Image.asset(imagePath!, width: 28, height: 28)
+                  : Icon(icon, color: effectiveColor, size: 21),
+            ),
           ),
           const SizedBox(height: 5),
           Text(

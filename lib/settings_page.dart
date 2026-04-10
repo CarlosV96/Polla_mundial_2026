@@ -12,6 +12,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   String _idiomaSeleccionado = AppSettings.instance.idioma;
+  String _modoJuegoSeleccionado = AppSettings.instance.gameMode;
 
   @override
   Widget build(BuildContext context) {
@@ -38,18 +39,44 @@ class _SettingsPageState extends State<SettingsPage> {
 
             const SizedBox(height: 10),
 
-            _opcionIdioma(
-              bandera: "🇨🇴",
-              nombre: "Español",
-              codigo: "es",
+            _opcionIdioma(bandera: "🇨🇴", nombre: "Español", codigo: "es"),
+
+            const SizedBox(height: 8),
+
+            _opcionIdioma(bandera: "🇺🇸", nombre: "English", codigo: "en"),
+
+            const SizedBox(height: 28),
+
+            // ── SECCIÓN MODO DE JUEGO ────────────────────────────────────────────
+            _seccionTitulo("🎮  ${AppStrings.modoJuego}"),
+
+            const SizedBox(height: 4),
+
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Text(
+                AppStrings.modoJuegoDesc,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppColors.textoGris,
+                ),
+              ),
+            ),
+
+            _opcionModo(
+              icono: Icons.emoji_events_outlined,
+              nombre: AppStrings.modoClasico,
+              descripcion: AppStrings.modoClasicoDesc,
+              codigo: 'clasico',
             ),
 
             const SizedBox(height: 8),
 
-            _opcionIdioma(
-              bandera: "🇺🇸",
-              nombre: "English",
-              codigo: "en",
+            _opcionModo(
+              icono: Icons.gps_fixed,
+              nombre: AppStrings.modoExacto,
+              descripcion: AppStrings.modoExactoDesc,
+              codigo: 'exacto',
             ),
 
             const SizedBox(height: 28),
@@ -142,12 +169,8 @@ class _SettingsPageState extends State<SettingsPage> {
               nombre,
               style: TextStyle(
                 fontSize: 15,
-                fontWeight: seleccionado
-                    ? FontWeight.bold
-                    : FontWeight.normal,
-                color: seleccionado
-                    ? AppColors.dorado
-                    : AppColors.textoBlanco,
+                fontWeight: seleccionado ? FontWeight.bold : FontWeight.normal,
+                color: seleccionado ? AppColors.dorado : AppColors.textoBlanco,
               ),
             ),
             const Spacer(),
@@ -157,13 +180,103 @@ class _SettingsPageState extends State<SettingsPage> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.dorado.withOpacity(0.2),
-                  border: Border.all(
-                    color: AppColors.dorado.withOpacity(0.6),
-                  ),
+                  border: Border.all(color: AppColors.dorado.withOpacity(0.6)),
                 ),
                 child: const Icon(
                   Icons.check,
                   color: AppColors.dorado,
+                  size: 14,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _opcionModo({
+    required IconData icono,
+    required String nombre,
+    required String descripcion,
+    required String codigo,
+  }) {
+    final seleccionado = _modoJuegoSeleccionado == codigo;
+
+    return GestureDetector(
+      onTap: () async {
+        await AppSettings.instance.cambiarModoJuego(codigo);
+        setState(() => _modoJuegoSeleccionado = codigo);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        decoration: BoxDecoration(
+          color: seleccionado
+              ? AppColors.acento.withOpacity(0.10)
+              : AppColors.fondoTarjeta,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: seleccionado
+                ? AppColors.acento.withOpacity(0.6)
+                : AppColors.dorado.withOpacity(0.15),
+            width: seleccionado ? 1.5 : 1,
+          ),
+          boxShadow: seleccionado
+              ? [
+                  BoxShadow(
+                    color: AppColors.acento.withOpacity(0.10),
+                    blurRadius: 10,
+                    spreadRadius: 1,
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icono,
+              color: seleccionado ? AppColors.acento : AppColors.textoGris,
+              size: 22,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    nombre,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: seleccionado
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color: seleccionado
+                          ? AppColors.acento
+                          : AppColors.textoBlanco,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    descripcion,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textoGris,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (seleccionado)
+              Container(
+                padding: const EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.acento.withOpacity(0.2),
+                  border: Border.all(color: AppColors.acento.withOpacity(0.6)),
+                ),
+                child: const Icon(
+                  Icons.check,
+                  color: AppColors.acento,
                   size: 14,
                 ),
               ),
@@ -183,9 +296,7 @@ class _SettingsPageState extends State<SettingsPage> {
       decoration: BoxDecoration(
         color: AppColors.fondoTarjeta,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: AppColors.dorado.withOpacity(0.15),
-        ),
+        border: Border.all(color: AppColors.dorado.withOpacity(0.15)),
       ),
       child: Row(
         children: [
