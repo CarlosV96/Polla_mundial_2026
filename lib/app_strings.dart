@@ -178,4 +178,70 @@ class AppStrings {
 
   static String get fechaNoDisponible =>
       idioma == 'es' ? 'Fecha por confirmar' : 'Date TBD';
+
+  static String get modoPersonalizado =>
+      idioma == 'es' ? 'Personalizado' : 'Custom';
+  static String get modoPersonalizadoDesc => idioma == 'es'
+      ? 'Tú defines los puntos por exacto y ganador'
+      : 'You set the points for exact and winner';
+  static String get puntosExactoLabel =>
+      idioma == 'es' ? 'Pts. marcador exacto' : 'Pts. exact score';
+  static String get puntosGanadorLabel =>
+      idioma == 'es' ? 'Pts. ganador / empate' : 'Pts. winner / draw';
+  static String get soloPremium =>
+      idioma == 'es' ? 'Solo Premium 👑' : 'Premium only 👑';
+
+  // ── PREMIUM ───────────────────────────────────────────────────────────────
+  static String get premiumTitulo =>
+      idioma == 'es' ? '¡HAZTE PREMIUM!' : 'GO PREMIUM!';
+  static String get premiumSubtitulo => idioma == 'es'
+      ? 'Desbloquea todo para vivir el Mundial al máximo'
+      : 'Unlock everything to enjoy the World Cup to the fullest';
+  static String get premiumPrecio =>
+      idioma == 'es' ? 'Pago único' : 'One-time payment';
+  static String get premiumBoton =>
+      idioma == 'es' ? 'COMPRAR AHORA' : 'BUY NOW';
+  static String get premiumRestaurar =>
+      idioma == 'es' ? 'Restaurar compra' : 'Restore purchase';
+  static String get premiumActivado =>
+      idioma == 'es' ? '🏆 ¡Premium activado!' : '🏆 Premium activated!';
+  static String get premiumError => idioma == 'es'
+      ? 'No se pudo completar la compra. Intenta de nuevo.'
+      : 'Purchase could not be completed. Try again.';
+  static String get premiumBloqueado =>
+      idioma == 'es' ? 'Función Premium' : 'Premium Feature';
+  static String get premiumDescBloqueado => idioma == 'es'
+      ? 'Esta función está disponible en la versión Premium'
+      : 'This feature is available in the Premium version';
+
+  // Beneficios mostrados en el paywall
+  static List<String> get premiumBeneficios => idioma == 'es'
+      ? [
+          '👥  Jugadores ilimitados',
+          '🚫  Sin anuncios',
+          '🎮  Modos de juego extra',
+          '🏆  Apuesta al campeón',
+          '⚽  Fase eliminatoria',
+          '📊  Estadísticas con gráficas',
+          '📤  Compartir y exportar PDF',
+          '🔔  Notificaciones por partido',
+          '💾  Backup y restaurar datos',
+          '🏟️  Torneos simultáneos',
+        ]
+      : [
+          '👥  Unlimited players',
+          '🚫  No ads',
+          '🎮  Extra game modes',
+          '🏆  Champion bet',
+          '⚽  Knockout stage',
+          '📊  Stats with charts',
+          '📤  Share and export PDF',
+          '🔔  Per-match notifications',
+          '💾  Backup and restore',
+          '🏟️  Simultaneous tournaments',
+        ];
+
+  static String get limiteJugadores => idioma == 'es'
+      ? '⚠️ Versión gratuita: máximo 6 jugadores'
+      : '⚠️ Free version: 6 players maximum';
 }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 import 'app_settings.dart';
 import 'app_strings.dart';
+import 'premium_service.dart';
+import 'premium_gate.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -13,6 +15,8 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   String _idiomaSeleccionado = AppSettings.instance.idioma;
   String _modoJuegoSeleccionado = AppSettings.instance.gameMode;
+  int _puntosExacto = AppSettings.instance.puntosExacto;
+  int _puntosGanador = AppSettings.instance.puntosGanador;
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +72,7 @@ class _SettingsPageState extends State<SettingsPage> {
               nombre: AppStrings.modoClasico,
               descripcion: AppStrings.modoClasicoDesc,
               codigo: 'clasico',
+              premium: false,
             ),
 
             const SizedBox(height: 8),
@@ -77,7 +82,24 @@ class _SettingsPageState extends State<SettingsPage> {
               nombre: AppStrings.modoExacto,
               descripcion: AppStrings.modoExactoDesc,
               codigo: 'exacto',
+              premium: true,
             ),
+
+            const SizedBox(height: 28),
+
+            // Modo Personalizado — premium
+            _opcionModo(
+              icono: Icons.tune,
+              nombre: AppStrings.modoPersonalizado,
+              descripcion: AppStrings.modoPersonalizadoDesc,
+              codigo: 'personalizado',
+              premium: true,
+            ),
+
+            // ── PANEL PERSONALIZADO (solo visible si está seleccionado) ──
+            if (_modoJuegoSeleccionado == 'personalizado' &&
+                PremiumService.instance.isPremium)
+              _panelPersonalizado(),
 
             const SizedBox(height: 28),
 
@@ -108,6 +130,122 @@ class _SettingsPageState extends State<SettingsPage> {
               valor: "FIFA World Cup 2026 🏆",
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _panelPersonalizado() {
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: AppColors.fondoTarjeta,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.acento.withOpacity(0.3)),
+      ),
+      child: Column(
+        children: [
+          // Pts exacto
+          _filaPuntos(
+            label: AppStrings.puntosExactoLabel,
+            valor: _puntosExacto,
+            min: 1,
+            max: 10,
+            onCambio: (v) async {
+              setState(() => _puntosExacto = v);
+              await AppSettings.instance.cambiarPuntosPersonalizados(
+                v,
+                _puntosGanador,
+              );
+            },
+          ),
+
+          const SizedBox(height: 14),
+
+          Divider(color: AppColors.dorado.withOpacity(0.1)),
+
+          const SizedBox(height: 14),
+
+          // Pts ganador
+          _filaPuntos(
+            label: AppStrings.puntosGanadorLabel,
+            valor: _puntosGanador,
+            min: 0,
+            max: 5,
+            onCambio: (v) async {
+              setState(() => _puntosGanador = v);
+              await AppSettings.instance.cambiarPuntosPersonalizados(
+                _puntosExacto,
+                v,
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _filaPuntos({
+    required String label,
+    required int valor,
+    required int min,
+    required int max,
+    required Function(int) onCambio,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 13, color: AppColors.textoBlanco),
+        ),
+        Row(
+          children: [
+            _botonPunto(
+              icono: Icons.remove,
+              onTap: valor > min ? () => onCambio(valor - 1) : null,
+            ),
+            Container(
+              width: 40,
+              alignment: Alignment.center,
+              child: Text(
+                '$valor',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.dorado,
+                ),
+              ),
+            ),
+            _botonPunto(
+              icono: Icons.add,
+              onTap: valor < max ? () => onCambio(valor + 1) : null,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _botonPunto({required IconData icono, VoidCallback? onTap}) {
+    final activo = onTap != null;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppColors.dorado.withOpacity(activo ? 0.12 : 0.04),
+          border: Border.all(
+            color: AppColors.dorado.withOpacity(activo ? 0.4 : 0.1),
+          ),
+        ),
+        child: Icon(
+          icono,
+          color: AppColors.dorado.withOpacity(activo ? 1.0 : 0.3),
+          size: 16,
         ),
       ),
     );
@@ -194,19 +332,25 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  // ── Opción de modo ────────────────────────────────────────────────────────
   Widget _opcionModo({
     required IconData icono,
     required String nombre,
     required String descripcion,
     required String codigo,
+    required bool premium,
   }) {
     final seleccionado = _modoJuegoSeleccionado == codigo;
+    final isPremium = PremiumService.instance.isPremium;
+    final bloqueado = premium && !isPremium;
 
-    return GestureDetector(
-      onTap: () async {
-        await AppSettings.instance.cambiarModoJuego(codigo);
-        setState(() => _modoJuegoSeleccionado = codigo);
-      },
+    final widget = GestureDetector(
+      onTap: bloqueado
+          ? null
+          : () async {
+              await AppSettings.instance.cambiarModoJuego(codigo);
+              setState(() => _modoJuegoSeleccionado = codigo);
+            },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
@@ -221,21 +365,16 @@ class _SettingsPageState extends State<SettingsPage> {
                 : AppColors.dorado.withOpacity(0.15),
             width: seleccionado ? 1.5 : 1,
           ),
-          boxShadow: seleccionado
-              ? [
-                  BoxShadow(
-                    color: AppColors.acento.withOpacity(0.10),
-                    blurRadius: 10,
-                    spreadRadius: 1,
-                  ),
-                ]
-              : null,
         ),
         child: Row(
           children: [
             Icon(
               icono,
-              color: seleccionado ? AppColors.acento : AppColors.textoGris,
+              color: bloqueado
+                  ? AppColors.textoGris.withOpacity(0.4)
+                  : seleccionado
+                  ? AppColors.acento
+                  : AppColors.textoGris,
               size: 22,
             ),
             const SizedBox(width: 14),
@@ -243,24 +382,42 @@ class _SettingsPageState extends State<SettingsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    nombre,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: seleccionado
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                      color: seleccionado
-                          ? AppColors.acento
-                          : AppColors.textoBlanco,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        nombre,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: seleccionado
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          color: bloqueado
+                              ? AppColors.textoGris.withOpacity(0.4)
+                              : seleccionado
+                              ? AppColors.acento
+                              : AppColors.textoBlanco,
+                        ),
+                      ),
+                      if (bloqueado) ...[
+                        const SizedBox(width: 8),
+                        Text(
+                          AppStrings.soloPremium,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.dorado,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 2),
                   Text(
                     descripcion,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: AppColors.textoGris,
+                      color: AppColors.textoGris.withOpacity(
+                        bloqueado ? 0.4 : 1.0,
+                      ),
                     ),
                   ),
                 ],
@@ -280,10 +437,15 @@ class _SettingsPageState extends State<SettingsPage> {
                   size: 14,
                 ),
               ),
+            if (bloqueado)
+              const Icon(Icons.lock_outline, color: AppColors.dorado, size: 16),
           ],
         ),
       ),
     );
+
+    // Si está bloqueado, envuelve con PremiumGate para abrir el paywall
+    return bloqueado ? PremiumGate(child: widget) : widget;
   }
 
   Widget _itemInfo({

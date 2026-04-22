@@ -1,5 +1,5 @@
-package com.example.polla_mundial_v1
+package com.carlosvalencia.pollamundial
 
 import io.flutter.embedding.android.FlutterActivity
 
-class MainActivity : FlutterActivity()
+class MainActivity: FlutterActivity()

@@ -14,6 +14,9 @@ import 'app_settings.dart';
 import 'app_strings.dart';
 import 'settings_page.dart';
 import 'splash_screen.dart';
+import 'package:sqflite/sqflite.dart';
+import 'premium_service.dart';
+import 'premium_gate.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -194,6 +197,43 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int _calcularPuntos(int predA, int predB, int realA, int realB) {
+    final settings = AppSettings.instance;
+    final modo = settings.gameMode;
+    final esExacto = predA == realA && predB == realB;
+
+    if (modo == 'clasico') {
+      if (esExacto) return 3;
+      final ganReal = realA > realB
+          ? 1
+          : realA < realB
+          ? -1
+          : 0;
+      final ganPred = predA > predB
+          ? 1
+          : predA < predB
+          ? -1
+          : 0;
+      return ganReal == ganPred ? 1 : 0;
+    } else if (modo == 'exacto') {
+      return esExacto ? 1 : 0;
+    } else {
+      // Modo personalizado
+      if (esExacto) return settings.puntosExacto;
+      final ganReal = realA > realB
+          ? 1
+          : realA < realB
+          ? -1
+          : 0;
+      final ganPred = predA > predB
+          ? 1
+          : predA < predB
+          ? -1
+          : 0;
+      return ganReal == ganPred ? settings.puntosGanador : 0;
+    }
+  }
+
   int _indiceActual = 0; // 0 para Ranking, 1 para Partidos
   String _filtroBusqueda = '';
   String _filtroGrupo = '';
@@ -360,6 +400,15 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
+    );
+  }
+
+  void _mostrarPaywall(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const PaywallSheet(),
     );
   }
 
@@ -573,37 +622,18 @@ class _HomePageState extends State<HomePage> {
 
     // 3. Revisamos apuesta por apuesta
     for (var apuesta in apuestas) {
-      int puntosGanados = 0;
       int prediccionA = apuesta['predict_score_a'] as int;
       int prediccionB = apuesta['predict_score_b'] as int;
       int idJugador = apuesta['participant_id'] as int;
 
-      final esExacto =
-          prediccionA == resultadoRealA && prediccionB == resultadoRealB;
+      final puntos = _calcularPuntos(
+        prediccionA,
+        prediccionB,
+        resultadoRealA,
+        resultadoRealB,
+      );
 
-      if (AppSettings.instance.gameMode == 'clasico') {
-        // ── Modo Clásico: 3pts exacto, 1pt ganador/empate ─────────────────
-        if (esExacto) {
-          puntosGanados = 3;
-        } else {
-          int ganadorReal = resultadoRealA > resultadoRealB
-              ? 1
-              : resultadoRealA < resultadoRealB
-              ? -1
-              : 0;
-          int ganadorPredicho = prediccionA > prediccionB
-              ? 1
-              : prediccionA < prediccionB
-              ? -1
-              : 0;
-          if (ganadorReal == ganadorPredicho) puntosGanados = 1;
-        }
-      } else {
-        // ── Modo Solo Exacto: 1pt solo si acierta el marcador exacto ──────
-        if (esExacto) puntosGanados = 1;
-      }
-
-      if (puntosGanados > 0) {
+      if (puntos > 0) {
         final jugadorData = await db.query(
           'participants',
           where: 'id = ?',
@@ -613,7 +643,7 @@ class _HomePageState extends State<HomePage> {
           int puntosActuales = jugadorData.first['points'] as int;
           await db.update(
             'participants',
-            {'points': puntosActuales + puntosGanados},
+            {'points': puntosActuales + puntos},
             where: 'id = ?',
             whereArgs: [idJugador],
           );
@@ -629,6 +659,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _mostrarIntersticial() {
+    if (PremiumService.instance.isPremium) return;
+
     InterstitialAd.load(
       adUnitId: AdHelper.interstitialAdUnitId,
       request: const AdRequest(),
@@ -651,7 +683,33 @@ class _HomePageState extends State<HomePage> {
     if (nombre.trim().isEmpty) return;
     final db = await DatabaseHelper.instance.database;
 
-    // VALIDACIÓN: ¿Ya existe este nombre?
+    // ── LÍMITE FREE: máximo 6 jugadores ──────────────────────────────────────
+    if (!PremiumService.instance.isPremium) {
+      final total =
+          Sqflite.firstIntValue(
+            await db.rawQuery('SELECT COUNT(*) FROM participants'),
+          ) ??
+          0;
+
+      if (total >= 6) {
+        if (mounted) {
+          // Muestra snackbar + abre paywall
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppStrings.limiteJugadores),
+              action: SnackBarAction(
+                label: 'Premium',
+                textColor: AppColors.dorado,
+                onPressed: () => _mostrarPaywall(context),
+              ),
+            ),
+          );
+        }
+        return;
+      }
+    }
+
+    // ── VALIDACIÓN: jugador duplicado ─────────────────────────────────────────
     final existente = await db.query(
       'participants',
       where: 'LOWER(name) = ?',
@@ -660,9 +718,9 @@ class _HomePageState extends State<HomePage> {
 
     if (existente.isNotEmpty) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppStrings.jugadorYaRegistrado)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(AppStrings.jugadorYaRegistrado)));
       }
       return;
     }
@@ -1055,6 +1113,11 @@ class _HomePageState extends State<HomePage> {
                         ),
                       );
                     },
+                    onLongPress: () => _confirmarEliminacionJugador(
+                      context,
+                      j['id'],
+                      j['name'],
+                    ),
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 6),
                       decoration: BoxDecoration(
@@ -1161,13 +1224,85 @@ class _HomePageState extends State<HomePage> {
         // Botón registrar jugador
         Padding(
           padding: const EdgeInsets.all(15),
-          child: SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.person_add),
-              label: Text(AppStrings.registrarJugador),
-              onPressed: () => _mostrarDialogoJugador(context),
-            ),
+          child: FutureBuilder<List<Map<String, dynamic>>>(
+            future: _obtenerParticipantes(),
+            builder: (context, snapshot) {
+              final total = snapshot.data?.length ?? 0;
+              final isPremium = PremiumService.instance.isPremium;
+              final limiteAlcanzado = !isPremium && total >= 6;
+
+              return Column(
+                children: [
+                  // Contador solo en versión free
+                  if (!isPremium)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Barra de progreso de jugadores
+                          ...List.generate(6, (i) {
+                            final activo = i < total;
+                            return Container(
+                              width: 28,
+                              height: 6,
+                              margin: const EdgeInsets.symmetric(horizontal: 2),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(3),
+                                color: activo
+                                    ? (limiteAlcanzado
+                                          ? AppColors.rojo
+                                          : AppColors.dorado)
+                                    : AppColors.dorado.withOpacity(0.15),
+                              ),
+                            );
+                          }),
+                          const SizedBox(width: 10),
+                          Text(
+                            '$total/6',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: limiteAlcanzado
+                                  ? AppColors.rojo
+                                  : AppColors.textoGris,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  // Botón principal
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: Icon(
+                        limiteAlcanzado ? Icons.lock_outline : Icons.person_add,
+                      ),
+                      label: Text(
+                        limiteAlcanzado
+                            ? AppStrings.premiumBloqueado
+                            : AppStrings.registrarJugador,
+                      ),
+                      onPressed: () => limiteAlcanzado
+                          ? _mostrarPaywall(context)
+                          : _mostrarDialogoJugador(context),
+                      style: limiteAlcanzado
+                          ? ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.dorado.withOpacity(
+                                0.15,
+                              ),
+                              foregroundColor: AppColors.dorado,
+                              side: BorderSide(
+                                color: AppColors.dorado.withOpacity(0.4),
+                              ),
+                            )
+                          : null,
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ],
@@ -2693,36 +2828,12 @@ class _HomePageState extends State<HomePage> {
         whereArgs: [id],
       );
       for (var apuesta in apuestas) {
-        int puntosARestar = 0;
         int predA = apuesta['predict_score_a'] as int;
         int predB = apuesta['predict_score_b'] as int;
         int idJugador = apuesta['participant_id'] as int;
 
-        // Calcular cuánto ganó en ese momento
-        final esExacto = predA == resA && predB == resB;
+        final puntosARestar = _calcularPuntos(predA, predB, resA, resB);
 
-        if (AppSettings.instance.gameMode == 'clasico') {
-          if (esExacto) {
-            puntosARestar = 3;
-          } else {
-            int ganReal = resA > resB
-                ? 1
-                : resA < resB
-                ? -1
-                : 0;
-            int ganPred = predA > predB
-                ? 1
-                : predA < predB
-                ? -1
-                : 0;
-            if (ganReal == ganPred) puntosARestar = 1;
-          }
-        } else {
-          // Modo Solo Exacto
-          if (esExacto) puntosARestar = 1;
-        }
-
-        // Restar los puntos al jugador
         if (puntosARestar > 0) {
           await db.rawUpdate(
             'UPDATE participants SET points = MAX(0, points - ?) WHERE id = ?',
@@ -2938,29 +3049,9 @@ class _HomePageState extends State<HomePage> {
                       final predA = a['predict_score_a'] as int;
                       final predB = a['predict_score_b'] as int;
 
-                      int puntos = 0;
-                      final esExacto =
-                          predA == resultadoA && predB == resultadoB;
-
-                      if (AppSettings.instance.gameMode == 'clasico') {
-                        if (esExacto) {
-                          puntos = 3;
-                        } else {
-                          int ganReal = resultadoA > resultadoB
-                              ? 1
-                              : resultadoA < resultadoB
-                              ? -1
-                              : 0;
-                          int ganPred = predA > predB
-                              ? 1
-                              : predA < predB
-                              ? -1
-                              : 0;
-                          if (ganReal == ganPred) puntos = 1;
-                        }
-                      } else {
-                        if (esExacto) puntos = 1;
-                      }
+                      final puntos = _calcularPuntos(
+                        predA, predB, resultadoA, resultadoB,
+                      );
 
                       Color resultColor;
                       String resultLabel;
