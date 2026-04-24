@@ -17,6 +17,9 @@ import 'splash_screen.dart';
 import 'package:sqflite/sqflite.dart';
 import 'premium_service.dart';
 import 'premium_gate.dart';
+import 'champion_bet_page.dart';
+import 'knockout_page.dart';
+import 'tournament_history_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -731,9 +734,14 @@ class _HomePageState extends State<HomePage> {
 
   // --- FUNCIONES DE BASE DE DATOS PARA PARTIDOS ---
   Future<List<Map<String, dynamic>>> _obtenerPartidos() async {
-    final db = await DatabaseHelper.instance.database;
-    return await db.query('matches');
-  }
+  final db = await DatabaseHelper.instance.database;
+  final torneoId = await DatabaseHelper.instance.getTournamentActivoId();
+  return await db.query(
+    'matches',
+    where: 'tournament_id = ? AND knockout_round_id IS NULL',
+    whereArgs: [torneoId],
+  );
+}
 
   void _agregarPartido(String local, String visitante) async {
     if (local.isEmpty || visitante.isEmpty) return;
@@ -750,47 +758,72 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     // Definimos qué cuerpo mostrar según la pestaña seleccionada
-    final List<Widget> _paginas = [_seccionRanking(), _seccionPartidos()];
+    final List<Widget> _paginas = [
+      _seccionRanking(),
+      _seccionPartidos(),
+      KnockoutPage(
+        onApostar: (matchId, teamA, teamB) =>
+            _mostrarDialogoApuesta(context, matchId, teamA, teamB),
+        onIngresarResultado: (matchId, teamA, teamB) =>
+            _mostrarDialogoResultadoReal(context, matchId, teamA, teamB),
+        onEliminarPartido: (matchId, equipos) =>
+            _confirmarEliminacionPartido(context, matchId, equipos),
+        onVerApuestas: (matchId, teamA, teamB, scoreA, scoreB) =>
+            _mostrarApuestasFinalizadas(
+              context,
+              matchId,
+              teamA,
+              teamB,
+              scoreA,
+              scoreB,
+            ),
+      ),
+    ];
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset('assets/images/ball.png', width: 64, height: 64),
-            const SizedBox(width: 10),
-            Text(
-              AppStrings.appNombre,
-              style: TextStyle(
-                fontFamily: 'Georgia',
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.dorado,
-                letterSpacing: 2,
-              ),
+        title: FutureBuilder<Map<String, dynamic>?>(
+  future: DatabaseHelper.instance.getTournamentActivo(),
+  builder: (context, snapshot) {
+    final nombre = snapshot.data?['name'] as String? ?? 'Mundial 2026';
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Image.asset('assets/images/ball.png', width: 40, height: 40),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            nombre,
+            style: const TextStyle(
+              fontFamily: 'Georgia',
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: AppColors.dorado,
+              letterSpacing: 1.5,
             ),
-            const Text(
-              " 2026",
-              style: TextStyle(
-                fontSize: 18,
-                color: AppColors.doradoClaro,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_outlined, color: AppColors.dorado),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SettingsPage()),
-              );
-            },
+            overflow: TextOverflow.ellipsis,
           ),
-        ],
+        ),
+      ],
+    );
+  },
+),
+actions: [
+  IconButton(
+    icon: const Icon(Icons.history, color: AppColors.dorado),
+    onPressed: () => Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const TournamentHistoryPage()),
+    ),
+  ),
+  IconButton(
+    icon: const Icon(Icons.settings_outlined, color: AppColors.dorado),
+    onPressed: () => Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const SettingsPage()),
+    ),
+  ),
+],
         centerTitle: true,
         backgroundColor: AppColors.fondoPrincipal,
         bottom: PreferredSize(
@@ -834,14 +867,19 @@ class _HomePageState extends State<HomePage> {
           onTap: (index) => setState(() => _indiceActual = index),
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.leaderboard_outlined),
-              activeIcon: Icon(Icons.leaderboard),
+              icon: const Icon(Icons.leaderboard_outlined),
+              activeIcon: const Icon(Icons.leaderboard),
               label: AppStrings.navRanking,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.sports_soccer_outlined),
-              activeIcon: Icon(Icons.sports_soccer),
+              icon: const Icon(Icons.sports_soccer_outlined),
+              activeIcon: const Icon(Icons.sports_soccer),
               label: AppStrings.navPartidos,
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.emoji_events_outlined),
+              activeIcon: const Icon(Icons.emoji_events),
+              label: AppStrings.eliminatorias,
             ),
           ],
         ),
@@ -1011,6 +1049,55 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         const SizedBox(height: 2),
+
+        PremiumGate(
+          child: GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ChampionBetPage()),
+            ),
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.dorado.withOpacity(0.15),
+                    AppColors.dorado.withOpacity(0.05),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.dorado.withOpacity(0.35)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'assets/images/trophy.png',
+                    width: 24,
+                    height: 24,
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    AppStrings.apuestaCampeon,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.dorado,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(
+                    Icons.chevron_right,
+                    color: AppColors.dorado,
+                    size: 18,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
 
         // ✅ PODIO 3D
         FutureBuilder<List<Map<String, dynamic>>>(
@@ -2850,15 +2937,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _reiniciarTodo() async {
-    final db = await DatabaseHelper.instance.database;
-    await db.delete('predictions'); // Borra todas las apuestas
-    await db.delete('matches'); // Borra todos los partidos
-    await db.delete(
-      'participants',
-    ); // ¡ESTO ES LO QUE FALTABA! Borra los jugadores
-    setState(() {});
-    print("🔥 Todo el torneo ha sido eliminado");
-  }
+  final db = await DatabaseHelper.instance.database;
+  await db.delete('predictions');
+  await db.delete('matches');
+  await db.delete('participants');
+  await db.delete('knockout_rounds'); 
+  await db.delete('champion_bets');  
+  await AppSettings.instance.resetearCampeon();
+  setState(() {});
+}
 
   // ... aquí terminan tus otras funciones ...
   Widget _statItem({
@@ -3050,7 +3137,10 @@ class _HomePageState extends State<HomePage> {
                       final predB = a['predict_score_b'] as int;
 
                       final puntos = _calcularPuntos(
-                        predA, predB, resultadoA, resultadoB,
+                        predA,
+                        predB,
+                        resultadoA,
+                        resultadoB,
                       );
 
                       Color resultColor;

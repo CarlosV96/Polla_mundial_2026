@@ -244,4 +244,102 @@ class AppStrings {
   static String get limiteJugadores => idioma == 'es'
       ? '⚠️ Versión gratuita: máximo 6 jugadores'
       : '⚠️ Free version: 6 players maximum';
+
+  // ── APUESTA AL CAMPEÓN ────────────────────────────────────────────────────
+  static String get apuestaCampeon =>
+      idioma == 'es' ? 'APUESTA AL CAMPEÓN' : 'CHAMPION BET';
+  static String get apuestaCampeonDesc => idioma == 'es'
+      ? '¿Quién ganará el Mundial 2026?'
+      : 'Who will win the 2026 World Cup?';
+  static String get seleccionarEquipo =>
+      idioma == 'es' ? 'Seleccionar equipo' : 'Select team';
+  static String get sinApuestaCampeon =>
+      idioma == 'es' ? 'Sin apuesta' : 'No bet';
+  static String get declararCampeon =>
+      idioma == 'es' ? 'DECLARAR CAMPEÓN' : 'DECLARE CHAMPION';
+  static String get campeonActual =>
+      idioma == 'es' ? 'Campeón declarado' : 'Declared champion';
+  static String get puntosBonusCampeon =>
+      idioma == 'es' ? 'Pts. por acertar campeón' : 'Pts. for correct champion';
+  static String get campeonDeclaradoMsg => idioma == 'es'
+      ? '🏆 ¡Campeón declarado y puntos repartidos!'
+      : '🏆 Champion declared and points awarded!';
+  static String get resetearCampeon =>
+      idioma == 'es' ? 'Resetear campeón' : 'Reset champion';
+  static String get acertaronCampeon =>
+      idioma == 'es' ? 'Acertaron el campeón' : 'Got the champion right';
+  static String get nadieAcerto =>
+      idioma == 'es' ? 'Nadie acertó el campeón' : 'Nobody got the champion';
+  static String get tuApuesta => idioma == 'es' ? 'Tu apuesta' : 'Your bet';
+
+  // ── ELIMINATORIAS ─────────────────────────────────────────────────────────
+  static String get eliminatorias =>
+      idioma == 'es' ? 'Eliminatorias' : 'Knockout';
+  static String get nuevaRonda => idioma == 'es' ? 'NUEVA RONDA' : 'NEW ROUND';
+  static String get nombreRonda =>
+      idioma == 'es' ? 'Nombre de la ronda' : 'Round name';
+  static String get sinRondas => idioma == 'es'
+      ? 'Aún no hay rondas\nCrea la primera ronda eliminatoria'
+      : 'No rounds yet\nCreate the first knockout round';
+  static String get sinPartidosRonda => idioma == 'es'
+      ? 'Sin partidos en esta ronda'
+      : 'No matches in this round';
+  static String get agregarPartido =>
+      idioma == 'es' ? 'Agregar Partido' : 'Add Match';
+  static String get eliminarRonda =>
+      idioma == 'es' ? 'ELIMINAR RONDA' : 'DELETE ROUND';
+  static String get eliminarRondaMsg => idioma == 'es'
+      ? 'Se eliminarán todos los partidos y apuestas de esta ronda.'
+      : 'All matches and bets in this round will be deleted.';
+  static String get rondasPredefinidas =>
+      idioma == 'es' ? 'Rondas sugeridas' : 'Suggested rounds';
+
+  // Nombres de rondas predefinidas
+  static List<String> get rondasSugeridas => idioma == 'es'
+      ? [
+          'Dieciseisavos de final',
+          'Octavos de final',
+          'Cuartos de final',
+          'Semifinales',
+          'Tercer puesto',
+          'Final',
+        ]
+      : [
+          'Round of 32',
+          'Round of 16',
+          'Quarter-finals',
+          'Semi-finals',
+          'Third place',
+          'Final',
+        ];
+  
+  // ── TORNEOS ───────────────────────────────────────────────────────────────
+  static String get torneos =>
+      idioma == 'es' ? 'Torneos' : 'Tournaments';
+  static String get nuevoTorneo =>
+      idioma == 'es' ? 'NUEVO TORNEO' : 'NEW TOURNAMENT';
+  static String get nombreTorneo =>
+      idioma == 'es' ? 'Nombre del torneo' : 'Tournament name';
+  static String get ingresaNombreTorneo =>
+      idioma == 'es' ? 'Ej: Copa América 2026' : 'e.g.: Copa America 2026';
+  static String get torneoCreado =>
+      idioma == 'es'
+          ? '✅ Nuevo torneo creado. ¡A jugar!'
+          : '✅ New tournament created. Let\'s play!';
+  static String get historialTorneos =>
+      idioma == 'es' ? 'HISTORIAL DE TORNEOS' : 'TOURNAMENT HISTORY';
+  static String get sinTorneosArchivados =>
+      idioma == 'es'
+          ? 'Aún no hay torneos archivados'
+          : 'No archived tournaments yet';
+  static String get rankingFinal =>
+      idioma == 'es' ? 'Ranking Final' : 'Final Ranking';
+  static String get torneoActivo =>
+      idioma == 'es' ? 'Torneo activo' : 'Active tournament';
+  static String get crearTorneo =>
+      idioma == 'es' ? 'Crear torneo' : 'Create tournament';
+  static String get advertenciaNuevoTorneo =>
+      idioma == 'es'
+          ? 'Se guardarán los puntos actuales y comenzará un torneo nuevo. Los jugadores se conservan con 0 puntos.'
+          : 'Current points will be saved and a new tournament will begin. Players are kept with 0 points.';
 }
