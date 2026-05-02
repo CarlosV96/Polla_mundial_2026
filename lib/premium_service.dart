@@ -8,7 +8,7 @@ class PremiumService extends ChangeNotifier {
   PremiumService._init();
 
   // ── Constantes ────────────────────────────────────────────────────────────
-  static const String kProductId   = 'premium_polla_mundial';
+  static const String kProductId   = 'premium_crack_mundial';
   static const String kPrefKey     = 'is_premium';
 
   // ── Estado ────────────────────────────────────────────────────────────────
@@ -27,7 +27,9 @@ class PremiumService extends ChangeNotifier {
     // 1. Leer estado guardado localmente
     final prefs = await SharedPreferences.getInstance();
     _isPremium = prefs.getBool(kPrefKey) ?? false;
-
+    
+    //_isPremium = true; // TEMPORAL PARA PRUEBAS — revertir antes de publicar
+    
     // 2. Verificar si Google Play está disponible
     _disponible = await InAppPurchase.instance.isAvailable();
     if (!_disponible) {

@@ -20,6 +20,12 @@ import 'premium_gate.dart';
 import 'champion_bet_page.dart';
 import 'knockout_page.dart';
 import 'tournament_history_page.dart';
+import 'stats_page.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:share_plus/share_plus.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'pdf_export_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,7 +44,7 @@ class PollaMundialApp extends StatelessWidget {
       builder: (context, _) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Polla Mundial 2026',
+          title: 'Crack Mundial 2026',
           theme: ThemeData(
             brightness: Brightness.dark,
             scaffoldBackgroundColor: AppColors.fondoPrincipal,
@@ -200,6 +206,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final ScreenshotController _screenshotController = ScreenshotController();
+
   int _calcularPuntos(int predA, int predB, int realA, int realB) {
     final settings = AppSettings.instance;
     final modo = settings.gameMode;
@@ -275,6 +283,145 @@ class _HomePageState extends State<HomePage> {
     // Borramos al jugador
     await db.delete('participants', where: 'id = ?', whereArgs: [id]);
     setState(() {});
+  }
+
+  void _mostrarDialogoNuevoTorneo(BuildContext context) {
+    final ctrl = TextEditingController();
+    String nombre = '';
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AppColors.fondoSecundario, AppColors.fondoTarjeta],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: AppColors.dorado.withOpacity(0.4),
+              width: 1.5,
+            ),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.emoji_events_outlined,
+                color: AppColors.dorado,
+                size: 40,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                AppStrings.nuevoTorneo,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.dorado,
+                  letterSpacing: 2,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                AppStrings.advertenciaNuevoTorneo,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppColors.textoGris,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: ctrl,
+                autofocus: true,
+                textCapitalization: TextCapitalization.sentences,
+                style: const TextStyle(color: AppColors.textoBlanco),
+                decoration: InputDecoration(
+                  hintText: AppStrings.ingresaNombreTorneo,
+                  prefixIcon: const Icon(
+                    Icons.sports_soccer,
+                    color: AppColors.dorado,
+                    size: 20,
+                  ),
+                  filled: true,
+                  fillColor: AppColors.fondoPrincipal,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: AppColors.dorado,
+                      width: 1.5,
+                    ),
+                  ),
+                ),
+                onChanged: (v) => nombre = v,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: AppColors.textoGris.withOpacity(0.3),
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        AppStrings.cancelar,
+                        style: const TextStyle(color: AppColors.textoGris),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (nombre.trim().isEmpty) return;
+                        await DatabaseHelper.instance.crearNuevoTorneo(
+                          nombre.trim(),
+                        );
+                        await AppSettings.instance.resetearCampeon();
+                        if (mounted) {
+                          Navigator.pop(context);
+                          setState(() {});
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(AppStrings.torneoCreado)),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.dorado,
+                        foregroundColor: AppColors.fondoPrincipal,
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        AppStrings.crearTorneo,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _confirmarEliminacionJugador(
@@ -551,6 +698,75 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> _exportarPDF() async {
+    if (!PremiumService.instance.isPremium) {
+      _mostrarPaywall(context);
+      return;
+    }
+
+    // Muestra loading
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          AppStrings.idioma == 'es' ? 'Generando PDF...' : 'Generating PDF...',
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+
+    try {
+      await PdfExportService.exportar(context);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red.shade700,
+            content: Text(
+              AppStrings.idioma == 'es'
+                  ? 'Error al generar el PDF'
+                  : 'Error generating PDF',
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _compartirRanking() async {
+    try {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppStrings.generandoImagen),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      final imagen = await _screenshotController.capture(pixelRatio: 2.0);
+
+      // ← AGREGA ESTO TEMPORALMENTE
+      debugPrint('📸 Imagen capturada: ${imagen?.length ?? "NULL"} bytes');
+
+      if (imagen == null) {
+        debugPrint('❌ imagen es null — el widget no se renderizó');
+        return;
+      }
+
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/ranking_crack_mundial.png');
+      await file.writeAsBytes(imagen);
+
+      debugPrint('📁 Archivo guardado en: ${file.path}');
+
+      await Share.shareXFiles([
+        XFile(file.path),
+      ], text: AppStrings.compartirTexto);
+    } catch (e) {
+      debugPrint('❌ Error al compartir: $e');
+    }
+  }
+
   // ✅
   Future<void> _guardarApuesta(
     int participantId,
@@ -734,14 +950,14 @@ class _HomePageState extends State<HomePage> {
 
   // --- FUNCIONES DE BASE DE DATOS PARA PARTIDOS ---
   Future<List<Map<String, dynamic>>> _obtenerPartidos() async {
-  final db = await DatabaseHelper.instance.database;
-  final torneoId = await DatabaseHelper.instance.getTournamentActivoId();
-  return await db.query(
-    'matches',
-    where: 'tournament_id = ? AND knockout_round_id IS NULL',
-    whereArgs: [torneoId],
-  );
-}
+    final db = await DatabaseHelper.instance.database;
+    final torneoId = await DatabaseHelper.instance.getTournamentActivoId();
+    return await db.query(
+      'matches',
+      where: 'tournament_id = ? AND knockout_round_id IS NULL',
+      whereArgs: [torneoId],
+    );
+  }
 
   void _agregarPartido(String local, String visitante) async {
     if (local.isEmpty || visitante.isEmpty) return;
@@ -783,47 +999,47 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: FutureBuilder<Map<String, dynamic>?>(
-  future: DatabaseHelper.instance.getTournamentActivo(),
-  builder: (context, snapshot) {
-    final nombre = snapshot.data?['name'] as String? ?? 'Mundial 2026';
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Image.asset('assets/images/ball.png', width: 40, height: 40),
-        const SizedBox(width: 8),
-        Flexible(
-          child: Text(
-            nombre,
-            style: const TextStyle(
-              fontFamily: 'Georgia',
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppColors.dorado,
-              letterSpacing: 1.5,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
+          future: DatabaseHelper.instance.getTournamentActivo(),
+          builder: (context, snapshot) {
+            final nombre = snapshot.data?['name'] as String? ?? 'Mundial 2026';
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset('assets/images/ball.png', width: 40, height: 40),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    nombre,
+                    style: const TextStyle(
+                      fontFamily: 'Georgia',
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.dorado,
+                      letterSpacing: 1.5,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            );
+          },
         ),
-      ],
-    );
-  },
-),
-actions: [
-  IconButton(
-    icon: const Icon(Icons.history, color: AppColors.dorado),
-    onPressed: () => Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const TournamentHistoryPage()),
-    ),
-  ),
-  IconButton(
-    icon: const Icon(Icons.settings_outlined, color: AppColors.dorado),
-    onPressed: () => Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const SettingsPage()),
-    ),
-  ),
-],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history, color: AppColors.dorado),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const TournamentHistoryPage()),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings_outlined, color: AppColors.dorado),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingsPage()),
+            ),
+          ),
+        ],
         centerTitle: true,
         backgroundColor: AppColors.fondoPrincipal,
         bottom: PreferredSize(
@@ -842,16 +1058,32 @@ actions: [
           ),
         ),
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF0A0F2E), Color(0xFF0D1333), Color(0xFF0A0F2E)],
-            stops: [0.0, 0.5, 1.0],
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xFF0A0F2E),
+                  Color(0xFF0D1333),
+                  Color(0xFF0A0F2E),
+                ],
+                stops: [0.0, 0.5, 1.0],
+              ),
+            ),
+            child: _paginas[_indiceActual],
           ),
-        ),
-        child: _paginas[_indiceActual],
+          Positioned(
+            left: -2000,
+            top: -2000,
+            child: Screenshot(
+              controller: _screenshotController,
+              child: _buildRankingParaCaptura(),
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -891,215 +1123,376 @@ actions: [
   Widget _seccionRanking() {
     return Column(
       children: [
-        // Botón reiniciar
+        // ── Botones superiores ─────────────────────────────────────────────
         Align(
           alignment: Alignment.topRight,
-          child: IconButton(
-            padding: EdgeInsets.all(4),
-            constraints: BoxConstraints(),
-            icon: Image.asset(
-              'assets/images/trash_3d.png',
-              width: 24,
-              height: 24,
-            ),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => Dialog(
-                  backgroundColor: Colors.transparent,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppColors.fondoSecundario,
-                          AppColors.fondoTarjeta,
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: AppColors.rojo.withOpacity(0.5),
-                        width: 1.5,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.rojo.withOpacity(0.2),
-                          blurRadius: 24,
-                          spreadRadius: 2,
-                        ),
-                      ],
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Compartir ranking (premium)
+              // Exportar PDF (premium)
+              IconButton(
+                padding: const EdgeInsets.all(4),
+                constraints: const BoxConstraints(),
+                icon: Stack(
+                  children: [
+                    const Icon(
+                      Icons.picture_as_pdf_rounded,
+                      color: AppColors.dorado,
+                      size: 22,
                     ),
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Ícono de advertencia
-                        Container(
-                          width: 70,
-                          height: 70,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.rojo.withOpacity(0.12),
-                            border: Border.all(
-                              color: AppColors.rojo.withOpacity(0.5),
-                              width: 1.5,
+                    if (!PremiumService.instance.isPremium)
+                      const Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: Icon(
+                          Icons.lock_outline,
+                          color: AppColors.dorado,
+                          size: 10,
+                        ),
+                      ),
+                  ],
+                ),
+                tooltip: AppStrings.idioma == 'es'
+                    ? 'Exportar PDF'
+                    : 'Export PDF',
+                onPressed: _exportarPDF,
+              ),
+              IconButton(
+                padding: const EdgeInsets.all(4),
+                constraints: const BoxConstraints(),
+                icon: const Icon(
+                  Icons.share_outlined,
+                  color: AppColors.dorado,
+                  size: 22,
+                ),
+                tooltip: AppStrings.compartirRanking,
+                onPressed: () {
+                  if (!PremiumService.instance.isPremium) {
+                    _mostrarPaywall(context);
+                    return;
+                  }
+                  _compartirRanking();
+                },
+              ),
+
+              // Nuevo torneo (premium)
+              IconButton(
+                padding: const EdgeInsets.all(4),
+                constraints: const BoxConstraints(),
+                icon: const Icon(
+                  Icons.add_circle_outline,
+                  color: AppColors.dorado,
+                  size: 22,
+                ),
+                tooltip: AppStrings.nuevoTorneo,
+                onPressed: () {
+                  if (!PremiumService.instance.isPremium) {
+                    _mostrarPaywall(context);
+                    return;
+                  }
+                  _mostrarDialogoNuevoTorneo(context);
+                },
+              ),
+
+              // Botón trash
+              IconButton(
+                padding: const EdgeInsets.all(4),
+                constraints: const BoxConstraints(),
+                icon: Image.asset(
+                  'assets/images/trash_3d.png',
+                  width: 24,
+                  height: 24,
+                ),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => Dialog(
+                      backgroundColor: Colors.transparent,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              AppColors.fondoSecundario,
+                              AppColors.fondoTarjeta,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: AppColors.rojo.withOpacity(0.5),
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.rojo.withOpacity(0.2),
+                              blurRadius: 24,
+                              spreadRadius: 2,
                             ),
-                          ),
-                          child: const Icon(
-                            Icons.warning_amber_rounded,
-                            color: AppColors.rojo,
-                            size: 36,
-                          ),
+                          ],
                         ),
-
-                        const SizedBox(height: 16),
-
-                        Text(
-                          AppStrings.reiniciarTorneo,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.rojo,
-                            letterSpacing: 2,
-                          ),
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        Text(
-                          AppStrings.reiniciarMsg,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textoGris,
-                            height: 1.6,
-                          ),
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        // Botón cancelar full width
-                        SizedBox(
-                          width: double.infinity,
-                          child: TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 13),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(
-                                  color: AppColors.textoGris.withOpacity(0.3),
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 70,
+                              height: 70,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AppColors.rojo.withOpacity(0.12),
+                                border: Border.all(
+                                  color: AppColors.rojo.withOpacity(0.5),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.warning_amber_rounded,
+                                color: AppColors.rojo,
+                                size: 36,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              AppStrings.reiniciarTorneo,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.rojo,
+                                letterSpacing: 2,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              AppStrings.reiniciarMsg,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: AppColors.textoGris,
+                                height: 1.6,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            SizedBox(
+                              width: double.infinity,
+                              child: TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 13,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    side: BorderSide(
+                                      color: AppColors.textoGris.withOpacity(
+                                        0.3,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                child: Text(
+                                  AppStrings.cancelar,
+                                  style: TextStyle(color: AppColors.textoGris),
                                 ),
                               ),
                             ),
-                            child: Text(
-                              AppStrings.cancelar,
-                              style: TextStyle(color: AppColors.textoGris),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 10),
-
-                        // Botón confirmar full width
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              _reiniciarTodo();
-                              Navigator.pop(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.rojo,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 13),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  _reiniciarTodo();
+                                  Navigator.pop(context);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.rojo,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 13,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  AppStrings.siReiniciar,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1,
+                                  ),
+                                ),
                               ),
                             ),
-                            child: Text(
-                              AppStrings.siReiniciar,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1,
-                              ),
-                            ),
-                          ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              );
-            },
-            tooltip: "Borrar todo el torneo",
+                  );
+                },
+                tooltip: "Borrar todo el torneo",
+              ),
+            ],
           ),
         ),
 
-        Image.asset('assets/images/trophy.png', width: 120, height: 120),
-        const SizedBox(height: 2),
+        // ── Trofeo y título ────────────────────────────────────────────────
+        Image.asset('assets/images/trophy.png', width: 70, height: 70),
+        const SizedBox(height: 1),
         Text(
           AppStrings.tablaPosiciones,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
             color: AppColors.dorado,
             letterSpacing: 2.5,
           ),
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: 1),
 
-        PremiumGate(
-          child: GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ChampionBetPage()),
-            ),
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 6),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.dorado.withOpacity(0.15),
-                    AppColors.dorado.withOpacity(0.05),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.dorado.withOpacity(0.35)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/images/trophy.png',
-                    width: 24,
-                    height: 24,
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    AppStrings.apuestaCampeon,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.dorado,
-                      letterSpacing: 1.5,
+        // ── Botones campeón y estadísticas ─────────────────────────────────
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
+          child: Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    if (!PremiumService.instance.isPremium) {
+                      _mostrarPaywall(context);
+                      return;
+                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ChampionBetPage(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.dorado.withOpacity(0.15),
+                          AppColors.dorado.withOpacity(0.05),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.dorado.withOpacity(0.35),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/images/trophy.png',
+                              width: 18,
+                              height: 18,
+                            ),
+                            if (!PremiumService.instance.isPremium) ...[
+                              const SizedBox(width: 4),
+                              const Icon(
+                                Icons.lock_outline,
+                                color: AppColors.dorado,
+                                size: 12,
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          AppStrings.apuestaCampeon,
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.dorado,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  const Icon(
-                    Icons.chevron_right,
-                    color: AppColors.dorado,
-                    size: 18,
-                  ),
-                ],
+                ),
               ),
-            ),
+
+              const SizedBox(width: 8),
+
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    if (!PremiumService.instance.isPremium) {
+                      _mostrarPaywall(context);
+                      return;
+                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const StatsPage()),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.acento.withOpacity(0.15),
+                          AppColors.acento.withOpacity(0.05),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.acento.withOpacity(0.35),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.bar_chart_rounded,
+                              color: AppColors.acento,
+                              size: 18,
+                            ),
+                            if (!PremiumService.instance.isPremium) ...[
+                              const SizedBox(width: 4),
+                              const Icon(
+                                Icons.lock_outline,
+                                color: AppColors.acento,
+                                size: 12,
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          AppStrings.verEstadisticas,
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.acento,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
 
-        // ✅ PODIO 3D
+        // ── Podio ──────────────────────────────────────────────────────────
         FutureBuilder<List<Map<String, dynamic>>>(
           future: _obtenerParticipantes(),
           builder: (context, snapshot) {
@@ -1118,8 +1511,9 @@ actions: [
           },
         ),
 
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
 
+        // ── Lista de jugadores ─────────────────────────────────────────────
         Expanded(
           child: FutureBuilder<List<Map<String, dynamic>>>(
             future: _obtenerParticipantes(),
@@ -1159,24 +1553,23 @@ actions: [
                   final j = jugadores[index];
                   final puesto = index + 1;
 
-                  // Configuración visual por puesto
                   Color colorMedalla;
                   IconData iconoMedalla;
                   Color colorBorde;
                   double tamanoLetra;
 
                   if (puesto == 1) {
-                    colorMedalla = const Color(0xFFFFD700); // Oro
+                    colorMedalla = const Color(0xFFFFD700);
                     iconoMedalla = Icons.emoji_events;
                     colorBorde = const Color(0xFFFFD700);
                     tamanoLetra = 17;
                   } else if (puesto == 2) {
-                    colorMedalla = const Color(0xFFC0C0C0); // Plata
+                    colorMedalla = const Color(0xFFC0C0C0);
                     iconoMedalla = Icons.emoji_events;
                     colorBorde = const Color(0xFFC0C0C0);
                     tamanoLetra = 16;
                   } else if (puesto == 3) {
-                    colorMedalla = const Color(0xFFCD7F32); // Bronce
+                    colorMedalla = const Color(0xFFCD7F32);
                     iconoMedalla = Icons.emoji_events;
                     colorBorde = const Color(0xFFCD7F32);
                     tamanoLetra = 15;
@@ -1188,18 +1581,16 @@ actions: [
                   }
 
                   return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => PlayerDetailPage(
-                            participantId: j['id'],
-                            nombre: j['name'],
-                            puntos: j['points'],
-                          ),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PlayerDetailPage(
+                          participantId: j['id'],
+                          nombre: j['name'],
+                          puntos: j['points'],
                         ),
-                      );
-                    },
+                      ),
+                    ),
                     onLongPress: () => _confirmarEliminacionJugador(
                       context,
                       j['id'],
@@ -1225,7 +1616,7 @@ actions: [
                               SizedBox(
                                 width: 30,
                                 child: Text(
-                                  "$puesto",
+                                  '$puesto',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -1233,7 +1624,6 @@ actions: [
                                   ),
                                 ),
                               ),
-
                               if (puesto <= 3)
                                 Padding(
                                   padding: const EdgeInsets.only(right: 10),
@@ -1253,7 +1643,6 @@ actions: [
                                 )
                               else
                                 const SizedBox(width: 40),
-
                               Expanded(
                                 child: Align(
                                   alignment: Alignment.centerLeft,
@@ -1269,7 +1658,6 @@ actions: [
                                   ),
                                 ),
                               ),
-
                               Align(
                                 alignment: Alignment.center,
                                 child: Container(
@@ -1277,7 +1665,6 @@ actions: [
                                     horizontal: 12,
                                     vertical: 5,
                                   ),
-                                  // DESPUÉS — transparente con solo borde sutil:
                                   decoration: BoxDecoration(
                                     color: Colors.transparent,
                                     borderRadius: BorderRadius.circular(20),
@@ -1287,7 +1674,7 @@ actions: [
                                     ),
                                   ),
                                   child: Text(
-                                    "${j['points']} pts",
+                                    '${j['points']} pts',
                                     style: TextStyle(
                                       color: colorMedalla,
                                       fontWeight: FontWeight.bold,
@@ -1308,7 +1695,7 @@ actions: [
           ),
         ),
 
-        // Botón registrar jugador
+        // ── Botón registrar jugador ────────────────────────────────────────
         Padding(
           padding: const EdgeInsets.all(15),
           child: FutureBuilder<List<Map<String, dynamic>>>(
@@ -1320,14 +1707,12 @@ actions: [
 
               return Column(
                 children: [
-                  // Contador solo en versión free
                   if (!isPremium)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Barra de progreso de jugadores
                           ...List.generate(6, (i) {
                             final activo = i < total;
                             return Container(
@@ -1358,8 +1743,6 @@ actions: [
                         ],
                       ),
                     ),
-
-                  // Botón principal
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
@@ -1392,7 +1775,139 @@ actions: [
             },
           ),
         ),
+
+        // ── Offstage para captura de imagen ───────────────────────────────
+        Offstage(
+          offstage: true,
+          child: Screenshot(
+            controller: _screenshotController,
+            child: _buildRankingParaCaptura(),
+          ),
+        ),
       ],
+    );
+  }
+
+  Widget _buildRankingParaCaptura() {
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: _obtenerParticipantes(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox.shrink();
+        final jugadores = snapshot.data!;
+
+        return Container(
+          width: 400,
+          color: AppColors.fondoPrincipal,
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Image.asset('assets/images/trophy.png', width: 60, height: 60),
+              const SizedBox(height: 8),
+              Text(
+                AppStrings.tablaPosiciones,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.dorado,
+                  letterSpacing: 2,
+                ),
+              ),
+              const SizedBox(height: 4),
+              FutureBuilder<Map<String, dynamic>?>(
+                future: DatabaseHelper.instance.getTournamentActivo(),
+                builder: (context, snap) {
+                  final nombre =
+                      snap.data?['name'] as String? ?? 'Mundial 2026';
+                  return Text(
+                    nombre,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textoGris,
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Lista completa de jugadores
+              ...jugadores.asMap().entries.map((entry) {
+                final index = entry.key;
+                final j = entry.value;
+                final puesto = index + 1;
+
+                final Color color = puesto == 1
+                    ? const Color(0xFFFFD700)
+                    : puesto == 2
+                    ? const Color(0xFFC0C0C0)
+                    : puesto == 3
+                    ? const Color(0xFFCD7F32)
+                    : AppColors.textoGris;
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.fondoTarjeta,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: color.withOpacity(puesto <= 3 ? 0.5 : 0.15),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 28,
+                        child: Text(
+                          '$puesto',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: color,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          j['name'] as String,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textoBlanco,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        '${j['points']} pts',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: color,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+
+              const SizedBox(height: 12),
+
+              // Footer
+              Text(
+                'Crack Mundial 2026',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: AppColors.textoGris.withOpacity(0.6),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -2937,15 +3452,15 @@ actions: [
   }
 
   void _reiniciarTodo() async {
-  final db = await DatabaseHelper.instance.database;
-  await db.delete('predictions');
-  await db.delete('matches');
-  await db.delete('participants');
-  await db.delete('knockout_rounds'); 
-  await db.delete('champion_bets');  
-  await AppSettings.instance.resetearCampeon();
-  setState(() {});
-}
+    final db = await DatabaseHelper.instance.database;
+    await db.delete('predictions');
+    await db.delete('matches');
+    await db.delete('participants');
+    await db.delete('knockout_rounds');
+    await db.delete('champion_bets');
+    await AppSettings.instance.resetearCampeon();
+    setState(() {});
+  }
 
   // ... aquí terminan tus otras funciones ...
   Widget _statItem({

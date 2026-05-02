@@ -530,4 +530,76 @@ class DatabaseHelper {
       'knockout_round_id': roundId,
     });
   }
+
+  // ── ESTADÍSTICAS ──────────────────────────────────────────────────────────
+Future<List<Map<String, dynamic>>> getEstadisticasJugadores() async {
+  final db = await database;
+  final torneoId = await getTournamentActivoId();
+
+  final jugadores = await db.query(
+    'participants',
+    orderBy: 'points DESC',
+  );
+
+  final List<Map<String, dynamic>> resultado = [];
+
+  for (final j in jugadores) {
+    final idJugador = j['id'] as int;
+
+    // Todas las apuestas del jugador en partidos finalizados
+    final apuestas = await db.rawQuery('''
+      SELECT
+        predictions.predict_score_a,
+        predictions.predict_score_b,
+        matches.score_a,
+        matches.score_b
+      FROM predictions
+      JOIN matches ON predictions.match_id = matches.id
+      WHERE predictions.participant_id = ?
+        AND matches.score_a IS NOT NULL
+        AND matches.tournament_id = ?
+    ''', [idJugador, torneoId]);
+
+    int exactos  = 0;
+    int ganadores = 0;
+    int fallos   = 0;
+
+    for (final a in apuestas) {
+      final predA = a['predict_score_a'] as int;
+      final predB = a['predict_score_b'] as int;
+      final realA = a['score_a'] as int;
+      final realB = a['score_b'] as int;
+
+      if (predA == realA && predB == realB) {
+        exactos++;
+      } else {
+        final ganReal = realA > realB ? 1 : realA < realB ? -1 : 0;
+        final ganPred = predA > predB ? 1 : predA < predB ? -1 : 0;
+        if (ganReal == ganPred) {
+          ganadores++;
+        } else {
+          fallos++;
+        }
+      }
+    }
+
+    final total = apuestas.length;
+    final precision = total > 0
+        ? ((exactos + ganadores) / total * 100).toStringAsFixed(0)
+        : '0';
+
+    resultado.add({
+      'id':        idJugador,
+      'name':      j['name'],
+      'points':    j['points'],
+      'exactos':   exactos,
+      'ganadores': ganadores,
+      'fallos':    fallos,
+      'total':     total,
+      'precision': precision,
+    });
+  }
+
+  return resultado;
+}
 }
