@@ -4,6 +4,7 @@ import 'app_settings.dart';
 import 'app_strings.dart';
 import 'premium_service.dart';
 import 'premium_gate.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -128,6 +129,65 @@ class _SettingsPageState extends State<SettingsPage> {
               icono: Icons.sports_soccer,
               titulo: "Mundial",
               valor: "FIFA World Cup 2026 🏆",
+            ),
+
+            // ── Política de privacidad ─────────────────────────────────────────────────
+            const SizedBox(height: 12),
+            GestureDetector(
+              onTap: () async {
+                final url = Uri.parse(AppStrings.politicaPrivacidadUrl);
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url, mode: LaunchMode.externalApplication);
+                }
+              },
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.fondoTarjeta,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.dorado.withOpacity(0.2)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.privacy_tip_outlined,
+                      color: AppColors.dorado,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            AppStrings.politicaPrivacidad,
+                            style: const TextStyle(
+                              color: AppColors.textoBlanco,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            AppStrings.politicaPrivacidadUrl,
+                            style: const TextStyle(
+                              color: AppColors.textoGris,
+                              fontSize: 11,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(
+                      Icons.open_in_new,
+                      color: AppColors.textoGris,
+                      size: 16,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),

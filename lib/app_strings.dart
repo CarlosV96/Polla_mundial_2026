@@ -2,9 +2,11 @@ class AppStrings {
   static String idioma = 'es'; // 'es' o 'en'
 
   // ── APP ───────────────────────────────────────────
-  static String get appTitulo => idioma == 'es' ? 'CRACK MUNDIAL' : 'WORLD CRACK';
-  static String get appNombre => idioma == 'es' ? 'CRACK MUNDIAL' : 'WORLD CRACK';
-  
+  static String get appTitulo =>
+      idioma == 'es' ? 'CRACK MUNDIAL' : 'WORLD CRACK';
+  static String get appNombre =>
+      idioma == 'es' ? 'CRACK MUNDIAL' : 'WORLD CRACK';
+
   // ── NAVEGACIÓN ────────────────────────────────────
   static String get navRanking => idioma == 'es' ? 'Ranking' : 'Ranking';
   static String get navPartidos => idioma == 'es' ? 'Partidos' : 'Matches';
@@ -146,7 +148,13 @@ class AppStrings {
   static String get acercaDe => idioma == 'es' ? 'Acerca de' : 'About';
   static String get acercaDeDesc => idioma == 'es'
       ? 'Crack Mundial 2026 — Creada por Carlos Valencia'
-      : 'World Cup Predictor 2026 — Created by Carlos Valencia';
+      : 'World Cup 2026 Predictor — Created by Carlos Valencia';
+
+  static String get politicaPrivacidad =>
+      idioma == 'es' ? 'Política de Privacidad' : 'Privacy Policy';
+
+  static String get politicaPrivacidadUrl =>
+      'https://anvaloso1.github.io/crack-mundial-privacy/';
 
   // ── FLIP CARD ─────────────────────────────────────────────────────
   static String get tocaParaAcciones =>
@@ -312,36 +320,32 @@ class AppStrings {
           'Third place',
           'Final',
         ];
-  
+
   // ── TORNEOS ───────────────────────────────────────────────────────────────
-  static String get torneos =>
-      idioma == 'es' ? 'Torneos' : 'Tournaments';
+  static String get torneos => idioma == 'es' ? 'Torneos' : 'Tournaments';
   static String get nuevoTorneo =>
       idioma == 'es' ? 'NUEVO TORNEO' : 'NEW TOURNAMENT';
   static String get nombreTorneo =>
       idioma == 'es' ? 'Nombre del torneo' : 'Tournament name';
   static String get ingresaNombreTorneo =>
       idioma == 'es' ? 'Ej: Copa América 2026' : 'e.g.: Copa America 2026';
-  static String get torneoCreado =>
-      idioma == 'es'
-          ? '✅ Nuevo torneo creado. ¡A jugar!'
-          : '✅ New tournament created. Let\'s play!';
+  static String get torneoCreado => idioma == 'es'
+      ? '✅ Nuevo torneo creado. ¡A jugar!'
+      : '✅ New tournament created. Let\'s play!';
   static String get historialTorneos =>
       idioma == 'es' ? 'HISTORIAL DE TORNEOS' : 'TOURNAMENT HISTORY';
-  static String get sinTorneosArchivados =>
-      idioma == 'es'
-          ? 'Aún no hay torneos archivados'
-          : 'No archived tournaments yet';
+  static String get sinTorneosArchivados => idioma == 'es'
+      ? 'Aún no hay torneos archivados'
+      : 'No archived tournaments yet';
   static String get rankingFinal =>
       idioma == 'es' ? 'Ranking Final' : 'Final Ranking';
   static String get torneoActivo =>
       idioma == 'es' ? 'Torneo activo' : 'Active tournament';
   static String get crearTorneo =>
       idioma == 'es' ? 'Crear torneo' : 'Create tournament';
-  static String get advertenciaNuevoTorneo =>
-      idioma == 'es'
-          ? 'Se guardarán los puntos actuales y comenzará un torneo nuevo. Los jugadores se conservan con 0 puntos.'
-          : 'Current points will be saved and a new tournament will begin. Players are kept with 0 points.';
+  static String get advertenciaNuevoTorneo => idioma == 'es'
+      ? 'Se guardarán los puntos actuales y comenzará un torneo nuevo. Los jugadores se conservan con 0 puntos.'
+      : 'Current points will be saved and a new tournament will begin. Players are kept with 0 points.';
 
   // ── ESTADÍSTICAS ──────────────────────────────────────────────────────────
   static String get estadisticasTorneo =>
@@ -352,30 +356,23 @@ class AppStrings {
       idioma == 'es' ? 'Distribución de apuestas' : 'Bet distribution';
   static String get resumenJugadores =>
       idioma == 'es' ? 'Resumen detallado' : 'Detailed summary';
-  static String get sinDatosEstadisticas =>
-      idioma == 'es'
-          ? 'Aún no hay partidos finalizados\npara mostrar estadísticas'
-          : 'No finished matches yet\nto show statistics';
+  static String get sinDatosEstadisticas => idioma == 'es'
+      ? 'Aún no hay partidos finalizados\npara mostrar estadísticas'
+      : 'No finished matches yet\nto show statistics';
   static String get verEstadisticas =>
       idioma == 'es' ? 'Estadísticas' : 'Statistics';
-  static String get exactosLabel =>
-      idioma == 'es' ? 'Exactos' : 'Exact';
-  static String get ganadoresLabel =>
-      idioma == 'es' ? 'Ganadores' : 'Winners';
-  static String get fallosLabel =>
-      idioma == 'es' ? 'Fallos' : 'Wrong';
-  static String get precisionLabel =>
-      idioma == 'es' ? 'Precisión' : 'Accuracy';
-  static String get apuestasLabel =>
-      idioma == 'es' ? 'Apuestas' : 'Bets';
+  static String get exactosLabel => idioma == 'es' ? 'Exactos' : 'Exact';
+  static String get ganadoresLabel => idioma == 'es' ? 'Ganadores' : 'Winners';
+  static String get fallosLabel => idioma == 'es' ? 'Fallos' : 'Wrong';
+  static String get precisionLabel => idioma == 'es' ? 'Precisión' : 'Accuracy';
+  static String get apuestasLabel => idioma == 'es' ? 'Apuestas' : 'Bets';
 
   // ── COMPARTIR ─────────────────────────────────────────────────────────────
   static String get compartirRanking =>
       idioma == 'es' ? 'Compartir ranking' : 'Share ranking';
-  static String get compartirTexto =>
-      idioma == 'es'
-          ? '🏆 Ranking Crack Mundial 2026'
-          : '🏆 World Cup 2026 Ranking';
+  static String get compartirTexto => idioma == 'es'
+      ? '🏆 Ranking Crack Mundial 2026'
+      : '🏆 World Cup 2026 Ranking';
   static String get generandoImagen =>
       idioma == 'es' ? 'Generando imagen...' : 'Generating image...';
 }
