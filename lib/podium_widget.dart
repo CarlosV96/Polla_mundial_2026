@@ -39,7 +39,7 @@ class _PodiumFIFAState extends State<PodiumFIFA> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 180,
+      height: 200,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisAlignment: MainAxisAlignment.center,

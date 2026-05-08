@@ -1,6 +1,18 @@
 class AdHelper {
   // ── BANNER ────────────────────────────────────────────────────────────
   static String get bannerAdUnitId {
+    return 'ca-app-pub-4035920614351420/9889531133'; // PRODUCCIÓN Android
+  }
+
+  // ── INTERSTITIAL ──────────────────────────────────────────────────────
+  static String get interstitialAdUnitId {
+    return 'ca-app-pub-4035920614351420/3409928860'; // PRODUCCIÓN Android
+  }
+}
+
+/*class AdHelper {
+  // ── BANNER ────────────────────────────────────────────────────────────
+  static String get bannerAdUnitId {
     // Mientras desarrollas, usa siempre los IDs de prueba de Google.
     // Cuando vayas a publicar, reemplaza por tus IDs reales.
     return 'ca-app-pub-3940256099942544/6300978111'; // TEST Android
@@ -12,4 +24,4 @@ class AdHelper {
     return 'ca-app-pub-3940256099942544/1033173712'; // TEST Android
     // iOS test: 'ca-app-pub-3940256099942544/4411468910'
   }
-}
+}*/

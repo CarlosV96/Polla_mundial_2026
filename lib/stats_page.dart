@@ -37,6 +37,7 @@ class _StatsPageState extends State<StatsPage>
         iconTheme: const IconThemeData(color: AppColors.dorado),
         bottom: TabBar(
           controller: _tabCtrl,
+          isScrollable: true,
           indicatorColor: AppColors.dorado,
           labelColor: AppColors.dorado,
           unselectedLabelColor: AppColors.textoGris,
@@ -167,16 +168,19 @@ class _TabPuntos extends StatelessWidget {
                           return const SizedBox.shrink();
                         }
                         final nombre = data[index]['name'] as String;
-                        final corto = nombre.length > 6
-                            ? nombre.substring(0, 6)
+                        final corto = nombre.length > 8
+                            ? '${nombre.substring(0, 7)}.'
                             : nombre;
                         return Padding(
                           padding: const EdgeInsets.only(top: 6),
-                          child: Text(
-                            corto,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: AppColors.textoGris,
+                          child: Transform.rotate(
+                            angle: -0.5,
+                            child: Text(
+                              corto,
+                              style: const TextStyle(
+                                fontSize: 9,
+                                color: AppColors.textoGris,
+                              ),
                             ),
                           ),
                         );
@@ -213,18 +217,18 @@ class _TabPuntos extends StatelessWidget {
                 ),
                 borderData: FlBorderData(show: false),
                 barGroups: data.asMap().entries.map((entry) {
-                  final i   = entry.key;
-                  final j   = entry.value;
+                  final i = entry.key;
+                  final j = entry.value;
                   final pts = (j['points'] as int).toDouble();
 
                   // Color según posición
                   final Color color = i == 0
                       ? const Color(0xFFFFD700)
                       : i == 1
-                          ? const Color(0xFFC0C0C0)
-                          : i == 2
-                              ? const Color(0xFFCD7F32)
-                              : AppColors.acento;
+                      ? const Color(0xFFC0C0C0)
+                      : i == 2
+                      ? const Color(0xFFCD7F32)
+                      : AppColors.acento;
 
                   return BarChartGroupData(
                     x: i,
@@ -283,10 +287,7 @@ class _TabPuntos extends StatelessWidget {
         const SizedBox(width: 5),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 11,
-            color: AppColors.textoGris,
-          ),
+          style: const TextStyle(fontSize: 11, color: AppColors.textoGris),
         ),
       ],
     );
@@ -308,14 +309,14 @@ class _TabDistribucionState extends State<_TabDistribucion> {
   @override
   Widget build(BuildContext context) {
     // Totales globales
-    int totalExactos  = 0;
+    int totalExactos = 0;
     int totalGanadores = 0;
-    int totalFallos   = 0;
+    int totalFallos = 0;
 
     for (final j in widget.data) {
-      totalExactos   += j['exactos']   as int;
+      totalExactos += j['exactos'] as int;
       totalGanadores += j['ganadores'] as int;
-      totalFallos    += j['fallos']    as int;
+      totalFallos += j['fallos'] as int;
     }
 
     final total = totalExactos + totalGanadores + totalFallos;
@@ -358,8 +359,7 @@ class _TabDistribucionState extends State<_TabDistribucion> {
                         _tocado = -1;
                         return;
                       }
-                      _tocado = response
-                          .touchedSection!.touchedSectionIndex;
+                      _tocado = response.touchedSection!.touchedSectionIndex;
                     });
                   },
                 ),
@@ -463,10 +463,7 @@ class _TabDistribucionState extends State<_TabDistribucion> {
             const SizedBox(width: 5),
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 11,
-                color: AppColors.textoGris,
-              ),
+              style: const TextStyle(fontSize: 11, color: AppColors.textoGris),
             ),
           ],
         ),
@@ -495,23 +492,23 @@ class _TabResumen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       itemCount: data.length,
       itemBuilder: (context, index) {
-        final j        = data[index];
-        final puesto   = index + 1;
-        final nombre   = j['name']      as String;
-        final puntos   = j['points']    as int;
-        final exactos  = j['exactos']   as int;
+        final j = data[index];
+        final puesto = index + 1;
+        final nombre = j['name'] as String;
+        final puntos = j['points'] as int;
+        final exactos = j['exactos'] as int;
         final ganadores = j['ganadores'] as int;
-        final fallos   = j['fallos']    as int;
-        final total    = j['total']     as int;
+        final fallos = j['fallos'] as int;
+        final total = j['total'] as int;
         final precision = j['precision'] as String;
 
         final Color colorPuesto = puesto == 1
             ? const Color(0xFFFFD700)
             : puesto == 2
-                ? const Color(0xFFC0C0C0)
-                : puesto == 3
-                    ? const Color(0xFFCD7F32)
-                    : AppColors.textoGris;
+            ? const Color(0xFFC0C0C0)
+            : puesto == 3
+            ? const Color(0xFFCD7F32)
+            : AppColors.textoGris;
 
         return Container(
           margin: const EdgeInsets.only(bottom: 10),
@@ -556,9 +553,7 @@ class _TabResumen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: colorPuesto.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: colorPuesto.withOpacity(0.4),
-                      ),
+                      border: Border.all(color: colorPuesto.withOpacity(0.4)),
                     ),
                     child: Text(
                       '$puntos pts',
@@ -625,14 +620,10 @@ class _TabResumen extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
-                  value: total > 0
-                      ? (exactos + ganadores) / total
-                      : 0,
+                  value: total > 0 ? (exactos + ganadores) / total : 0,
                   minHeight: 5,
                   backgroundColor: AppColors.fondoPrincipal,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    AppColors.dorado,
-                  ),
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.dorado),
                 ),
               ),
             ],
@@ -655,10 +646,7 @@ class _TabResumen extends StatelessWidget {
         ),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 9,
-            color: AppColors.textoGris,
-          ),
+          style: const TextStyle(fontSize: 9, color: AppColors.textoGris),
         ),
       ],
     );
