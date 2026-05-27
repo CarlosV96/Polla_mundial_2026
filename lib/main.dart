@@ -21,7 +21,7 @@ import 'champion_bet_page.dart';
 import 'knockout_page.dart';
 import 'tournament_history_page.dart';
 import 'stats_page.dart';
-import 'package:screenshot/screenshot.dart';
+//import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
@@ -206,7 +206,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final ScreenshotController _screenshotController = ScreenshotController();
+  //final ScreenshotController _screenshotController = ScreenshotController();
 
   int _calcularPuntos(int predA, int predB, int realA, int realB) {
     final settings = AppSettings.instance;
@@ -732,7 +732,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _compartirRanking() async {
+  /*Future<void> _compartirRanking() async {
     try {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -765,7 +765,7 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       debugPrint('❌ Error al compartir: $e');
     }
-  }
+  }*/
 
   // ✅
   Future<void> _guardarApuesta(
@@ -1075,14 +1075,14 @@ class _HomePageState extends State<HomePage> {
             ),
             child: _paginas[_indiceActual],
           ),
-          Positioned(
+          /*Positioned(
             left: -2000,
             top: -2000,
             child: Screenshot(
               controller: _screenshotController,
               child: _buildRankingParaCaptura(),
             ),
-          ),
+          ),*/
         ],
       ),
       bottomNavigationBar: Container(
@@ -1158,7 +1158,7 @@ class _HomePageState extends State<HomePage> {
                     : 'Export PDF',
                 onPressed: _exportarPDF,
               ),
-              IconButton(
+              /*IconButton(
                 padding: const EdgeInsets.all(4),
                 constraints: const BoxConstraints(),
                 icon: const Icon(
@@ -1168,13 +1168,13 @@ class _HomePageState extends State<HomePage> {
                 ),
                 tooltip: AppStrings.compartirRanking,
                 onPressed: () {
-                  if (!PremiumService.instance.isPremium) {
+                  /*if (!PremiumService.instance.isPremium) {
                     _mostrarPaywall(context);
                     return;
                   }
-                  _compartirRanking();
+                  _compartirRanking();*/
                 },
-              ),
+              ),*/
 
               // Nuevo torneo (premium)
               IconButton(
@@ -1773,15 +1773,6 @@ class _HomePageState extends State<HomePage> {
                 ],
               );
             },
-          ),
-        ),
-
-        // ── Offstage para captura de imagen ───────────────────────────────
-        Offstage(
-          offstage: true,
-          child: Screenshot(
-            controller: _screenshotController,
-            child: _buildRankingParaCaptura(),
           ),
         ),
       ],

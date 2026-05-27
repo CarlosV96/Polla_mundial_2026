@@ -14,7 +14,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.carlosvalencia.pollamundial"      // ← cambiado
+    namespace = "com.carlosvalencia.crackmundial"      // ← cambiado
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -28,7 +28,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.carlosvalencia.pollamundial"  // ← cambiado
+        applicationId = "com.carlosvalencia.crackmundial"  // ← cambiado
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

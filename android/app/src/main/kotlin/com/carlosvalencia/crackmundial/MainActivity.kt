@@ -1,4 +1,4 @@
-package com.carlosvalencia.pollamundial
+package com.carlosvalencia.crackmundial
 
 import io.flutter.embedding.android.FlutterActivity
 
